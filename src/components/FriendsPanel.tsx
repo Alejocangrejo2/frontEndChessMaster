@@ -57,7 +57,7 @@ export const FriendsPanel: React.FC<FriendsPanelProps> = ({
     }
   }, [notification]);
 
-  // Load friends list
+  // Load friends list (only from real backend)
   const loadFriends = useCallback(async () => {
     if (!username) return;
     try {
@@ -69,15 +69,14 @@ export const FriendsPanel: React.FC<FriendsPanelProps> = ({
         const data = await res.json();
         setFriends(data);
       } else {
-        // Fallback: use localStorage mock data
-        loadMockFriends();
+        setFriends([]);
       }
     } catch {
-      loadMockFriends();
+      setFriends([]);
     }
   }, [username]);
 
-  // Load pending requests
+  // Load pending requests (only from real backend)
   const loadRequests = useCallback(async () => {
     if (!username) return;
     try {
@@ -89,39 +88,14 @@ export const FriendsPanel: React.FC<FriendsPanelProps> = ({
         const data = await res.json();
         setRequests(data);
       } else {
-        loadMockRequests();
+        setRequests([]);
       }
     } catch {
-      loadMockRequests();
+      setRequests([]);
     }
   }, [username]);
 
-  // Mock data fallback (works without backend)
-  const loadMockFriends = () => {
-    const stored = localStorage.getItem('chess_friends');
-    if (stored) {
-      setFriends(JSON.parse(stored));
-    } else {
-      // Demo friends
-      const demoFriends: Friend[] = [
-        { id: '1', username: 'Magnus_Fan', rating: 1450, online: true },
-        { id: '2', username: 'AjedrezPro', rating: 1320, online: true },
-        { id: '3', username: 'GarryK42', rating: 1580, online: false, lastSeen: 'hace 2h' },
-        { id: '4', username: 'NataliaChess', rating: 1200, online: false, lastSeen: 'hace 1d' },
-      ];
-      localStorage.setItem('chess_friends', JSON.stringify(demoFriends));
-      setFriends(demoFriends);
-    }
-  };
-
-  const loadMockRequests = () => {
-    const stored = localStorage.getItem('chess_friend_requests');
-    if (stored) {
-      setRequests(JSON.parse(stored));
-    } else {
-      setRequests([]);
-    }
-  };
+  // No mock data — all data comes from real backend only
 
   // Load data on mount
   useEffect(() => {
@@ -129,7 +103,7 @@ export const FriendsPanel: React.FC<FriendsPanelProps> = ({
     loadRequests();
   }, [loadFriends, loadRequests]);
 
-  // Search users
+  // Search users (only real users from backend)
   const handleSearch = useCallback(async () => {
     if (!searchQuery.trim() || searchQuery.length < 2) return;
     setIsSearching(true);
@@ -143,20 +117,17 @@ export const FriendsPanel: React.FC<FriendsPanelProps> = ({
         const data = await res.json();
         setSearchResults(data);
       } else {
-        // Mock search
-        setSearchResults([
-          { username: searchQuery, rating: 1200 + Math.floor(Math.random() * 600) },
-        ]);
+        setSearchResults([]);
+        setNotification('Error al buscar usuarios');
       }
     } catch {
-      setSearchResults([
-        { username: searchQuery, rating: 1200 + Math.floor(Math.random() * 600) },
-      ]);
+      setSearchResults([]);
+      setNotification('No se pudo conectar al servidor');
     }
     setIsSearching(false);
   }, [searchQuery]);
 
-  // Send friend request
+  // Send friend request (real backend only)
   const sendRequest = useCallback(async (targetUsername: string) => {
     if (!username) return;
     try {
@@ -171,17 +142,14 @@ export const FriendsPanel: React.FC<FriendsPanelProps> = ({
       });
       if (res.ok) {
         setNotification(`Solicitud enviada a ${targetUsername}`);
+        setSearchResults(prev => prev.filter(r => r.username !== targetUsername));
       } else {
-        // Mock: save locally
-        const pending = JSON.parse(localStorage.getItem('chess_sent_requests') || '[]');
-        pending.push({ to: targetUsername, timestamp: new Date().toISOString() });
-        localStorage.setItem('chess_sent_requests', JSON.stringify(pending));
-        setNotification(`Solicitud enviada a ${targetUsername}`);
+        const data = await res.json().catch(() => ({}));
+        setNotification(data.message || 'Error al enviar solicitud');
       }
     } catch {
-      setNotification(`Solicitud enviada a ${targetUsername}`);
+      setNotification('No se pudo conectar al servidor');
     }
-    setSearchResults(prev => prev.filter(r => r.username !== targetUsername));
   }, [username]);
 
   // Accept friend request
@@ -194,20 +162,11 @@ export const FriendsPanel: React.FC<FriendsPanelProps> = ({
       });
     } catch { /* Use fallback */ }
 
-    // Update local state
+    // Reload data from backend after accepting
     setRequests(prev => prev.filter(r => r.id !== requestId));
-    const newFriend: Friend = {
-      id: requestId,
-      username: fromUser,
-      rating: 1200,
-      online: false,
-    };
-    setFriends(prev => {
-      const updated = [...prev, newFriend];
-      localStorage.setItem('chess_friends', JSON.stringify(updated));
-      return updated;
-    });
     setNotification(`${fromUser} añadido como amigo`);
+    // Refresh friends list from backend
+    loadFriends();
   }, []);
 
   // Reject friend request
@@ -234,11 +193,7 @@ export const FriendsPanel: React.FC<FriendsPanelProps> = ({
       });
     } catch { /* Use fallback */ }
 
-    setFriends(prev => {
-      const updated = prev.filter(f => f.id !== friendId);
-      localStorage.setItem('chess_friends', JSON.stringify(updated));
-      return updated;
-    });
+    setFriends(prev => prev.filter(f => f.id !== friendId));
     setNotification('Amigo eliminado');
   }, []);
 
