@@ -15,14 +15,25 @@ interface LandingPageProps {
 export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
   const [mode, setMode] = useState<'landing' | 'login' | 'register'>('landing');
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username.trim() || !password.trim()) {
       setError('Completa todos los campos');
+      return;
+    }
+    if (mode === 'register' && !email.trim()) {
+      setError('El correo electronico es obligatorio');
+      return;
+    }
+    if (mode === 'register' && !isValidEmail(email.trim())) {
+      setError('Ingresa un correo electronico valido');
       return;
     }
 
@@ -34,7 +45,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
       const res = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username.trim(), password }),
+        body: JSON.stringify({
+          username: username.trim(),
+          password,
+          ...(mode === 'register' ? { email: email.trim() } : {}),
+        }),
       });
 
       if (res.ok) {
@@ -147,6 +162,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                 id="input-username"
               />
             </div>
+            {mode === 'register' && (
+              <div className="landing__field">
+                <label className="landing__label">Correo electronico</label>
+                <input
+                  className="landing__input"
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="tu@correo.com"
+                  id="input-email"
+                />
+              </div>
+            )}
             <div className="landing__field">
               <label className="landing__label">Contrasena</label>
               <input
