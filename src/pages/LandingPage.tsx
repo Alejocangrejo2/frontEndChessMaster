@@ -23,7 +23,7 @@ const FLOATING_PIECES = [
   { piece: PIECES.bQ, x: 88, y: 15, size: 70, speed: 16, color: 'rgba(100,100,100,0.10)', blur: 0, delay: -2 },
   { piece: PIECES.wN, x: 42, y: 78, size: 66, speed: 18, color: 'rgba(255,255,255,0.07)', blur: 0, delay: -5 },
   { piece: PIECES.bR, x: 74, y: 62, size: 62, speed: 15, color: 'rgba(80,80,80,0.09)',    blur: 0, delay: -8 },
-  { piece: PIECES.wQ, x: 28, y: 30, size: 68, speed: 13, color: 'rgba(76,175,80,0.06)',   blur: 0, delay: -11},
+  { piece: PIECES.wQ, x: 28, y: 30, size: 68, speed: 13, color: 'rgba(90,158,111,0.06)',   blur: 0, delay: -11},
   // === MID-NEAR (medium-large) ===
   { piece: PIECES.wR, x: 18, y: 52, size: 52, speed: 20, color: 'rgba(139,90,43,0.08)',   blur: 1, delay: -3 },
   { piece: PIECES.bN, x: 62, y: 22, size: 50, speed: 22, color: 'rgba(60,60,60,0.10)',    blur: 1, delay: -7 },
@@ -31,7 +31,7 @@ const FLOATING_PIECES = [
   { piece: PIECES.bP, x: 93, y: 48, size: 42, speed: 24, color: 'rgba(100,100,100,0.08)', blur: 1, delay: -4 },
   { piece: PIECES.wQ, x: 12, y: 88, size: 58, speed: 17, color: 'rgba(255,255,255,0.07)', blur: 1, delay: -9 },
   { piece: PIECES.bK, x: 52, y: 8,  size: 56, speed: 21, color: 'rgba(50,50,50,0.10)',    blur: 1, delay: -6 },
-  { piece: PIECES.wP, x: 78, y: 88, size: 44, speed: 23, color: 'rgba(76,175,80,0.05)',   blur: 1, delay: -10},
+  { piece: PIECES.wP, x: 78, y: 88, size: 44, speed: 23, color: 'rgba(90,158,111,0.05)',   blur: 1, delay: -10},
   { piece: PIECES.bB, x: 48, y: 58, size: 46, speed: 18, color: 'rgba(139,90,43,0.07)',   blur: 1, delay: -12},
   // === MID-FAR (medium-small) ===
   { piece: PIECES.wP, x: 3,  y: 38, size: 34, speed: 28, color: 'rgba(139,90,43,0.06)',   blur: 2, delay: -2 },
@@ -39,7 +39,7 @@ const FLOATING_PIECES = [
   { piece: PIECES.wP, x: 72, y: 32, size: 32, speed: 30, color: 'rgba(200,200,200,0.05)', blur: 2, delay: -8 },
   { piece: PIECES.bP, x: 50, y: 50, size: 36, speed: 25, color: 'rgba(100,100,100,0.06)', blur: 2, delay: -1 },
   { piece: PIECES.wN, x: 95, y: 75, size: 40, speed: 27, color: 'rgba(139,90,43,0.07)',   blur: 2, delay: -4 },
-  { piece: PIECES.bP, x: 15, y: 68, size: 30, speed: 29, color: 'rgba(76,175,80,0.04)',   blur: 2, delay: -13},
+  { piece: PIECES.bP, x: 15, y: 68, size: 30, speed: 29, color: 'rgba(90,158,111,0.04)',   blur: 2, delay: -13},
   { piece: PIECES.wR, x: 58, y: 95, size: 36, speed: 26, color: 'rgba(200,200,200,0.06)', blur: 2, delay: -7 },
   { piece: PIECES.bK, x: 82, y: 5,  size: 34, speed: 28, color: 'rgba(60,60,60,0.06)',    blur: 2, delay: -3 },
   // === FAR (small, blurred, slow — depth) ===
@@ -48,11 +48,17 @@ const FLOATING_PIECES = [
   { piece: PIECES.bQ, x: 38, y: 3,  size: 24, speed: 34, color: 'rgba(80,80,80,0.04)',    blur: 3, delay: -6 },
   { piece: PIECES.wR, x: 84, y: 42, size: 22, speed: 36, color: 'rgba(139,90,43,0.04)',   blur: 3, delay: -9 },
   { piece: PIECES.bN, x: 22, y: 18, size: 26, speed: 31, color: 'rgba(60,60,60,0.04)',    blur: 3, delay: -1 },
-  { piece: PIECES.wP, x: 55, y: 35, size: 20, speed: 38, color: 'rgba(76,175,80,0.03)',   blur: 3, delay: -5 },
+  { piece: PIECES.wP, x: 55, y: 35, size: 20, speed: 38, color: 'rgba(90,158,111,0.03)', blur: 3, delay: -5 },
   { piece: PIECES.bP, x: 90, y: 25, size: 22, speed: 33, color: 'rgba(100,100,100,0.04)', blur: 3, delay: -8 },
   { piece: PIECES.wK, x: 3,  y: 95, size: 24, speed: 35, color: 'rgba(255,255,255,0.03)', blur: 4, delay: -2 },
   { piece: PIECES.bB, x: 70, y: 8,  size: 20, speed: 40, color: 'rgba(80,80,80,0.03)',    blur: 4, delay: -4 },
   { piece: PIECES.wN, x: 45, y: 65, size: 18, speed: 42, color: 'rgba(139,90,43,0.03)',   blur: 4, delay: -10},
+  // === EXTRA (fill gaps — reach 40) ===
+  { piece: PIECES.bQ, x: 98, y: 92, size: 32, speed: 25, color: 'rgba(80,80,80,0.05)',    blur: 2, delay: -6 },
+  { piece: PIECES.wP, x: 35, y: 15, size: 28, speed: 30, color: 'rgba(200,200,200,0.04)', blur: 3, delay: -11},
+  { piece: PIECES.bR, x: 65, y: 50, size: 22, speed: 37, color: 'rgba(60,60,60,0.03)',    blur: 4, delay: -7 },
+  { piece: PIECES.wB, x: 8,  y: 50, size: 36, speed: 23, color: 'rgba(139,90,43,0.06)',   blur: 2, delay: -14},
+  { piece: PIECES.bK, x: 50, y: 92, size: 30, speed: 28, color: 'rgba(100,100,100,0.05)', blur: 2, delay: -3 },
 ];
 
 interface LandingPageProps {

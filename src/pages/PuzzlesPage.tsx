@@ -25,6 +25,7 @@ export const PuzzlesPage: React.FC = () => {
   const [engine, setEngine] = useState<ChessEngine | null>(null);
   const [moveIndex, setMoveIndex] = useState(0);
   const [lastMove, setLastMove] = useState<[Key, Key] | undefined>(undefined);
+  const [playerColor, setPlayerColor] = useState<Color>('white'); // FIXED per puzzle
   const [streak, setStreak] = useState(0);
   const [totalSolved, setTotalSolved] = useState(0);
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | 'solved' | null>(null);
@@ -67,6 +68,12 @@ export const PuzzlesPage: React.FC = () => {
     if (!puzzle) return;
 
     const newEngine = new ChessEngine(puzzle.fen);
+    // Fix orientation: determine which color the PLAYER plays
+    // In Lichess puzzles, the FEN shows the position, and the player
+    // plays as whoever's turn it is in the FEN
+    const fenTurn = puzzle.fen.split(' ')[1];
+    const fixedColor: Color = fenTurn === 'b' ? 'black' : 'white';
+    setPlayerColor(fixedColor);
     setCurrentPuzzle(puzzle);
     setEngine(newEngine);
     setMoveIndex(0);
@@ -214,7 +221,7 @@ export const PuzzlesPage: React.FC = () => {
 
   const difficulty = getDifficultyForStreak(streak);
   const difficultyColors: Record<string, string> = {
-    easy: '#4caf50', medium: '#ff9800', hard: '#f44336',
+    easy: '#5a9e6f', medium: '#ff9800', hard: '#f44336',
   };
 
   // Theme labels
@@ -237,7 +244,7 @@ export const PuzzlesPage: React.FC = () => {
       <div className="puzzles-stats">
         <div className="puzzles-stats__item">
           <span className="puzzles-stats__label">Racha</span>
-          <span className="puzzles-stats__value" style={{ color: streak > 0 ? '#4caf50' : 'inherit' }}>
+          <span className="puzzles-stats__value" style={{ color: streak > 0 ? '#5a9e6f' : 'inherit' }}>
             {streak}
           </span>
         </div>
@@ -279,7 +286,7 @@ export const PuzzlesPage: React.FC = () => {
       <div className="puzzles-board-wrap">
         <ChessBoard
           fen={currentFEN}
-          orientation={turnColor}
+          orientation={playerColor}
           turnColor={turnColor}
           lastMove={lastMove}
           dests={dests}

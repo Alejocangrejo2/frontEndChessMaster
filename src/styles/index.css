@@ -43,32 +43,32 @@
 
 /* === Theme: Dark === */
 [data-theme="dark"], .theme--dark {
-  --c-bg: #0f1210;
-  --c-bg-page: #0f1210;
-  --c-bg-box: #1a1e1b;
-  --c-bg-input: #151915;
-  --c-bg-header: #111614;
-  --c-bg-zebra: #1e2320;
-  --c-bg-zebra2: #232825;
-  --c-bg-popup: #1e2320;
-  --c-bg-hover: #2a302c;
+  --c-bg: #121416;
+  --c-bg-page: #121416;
+  --c-bg-box: #1b1d21;
+  --c-bg-input: #16181c;
+  --c-bg-header: #15171b;
+  --c-bg-zebra: #1e2024;
+  --c-bg-zebra2: #222428;
+  --c-bg-popup: #1e2024;
+  --c-bg-hover: #282a30;
 
-  --c-font: #b8c4b8;
-  --c-font-dim: #8a9a8a;
-  --c-font-dimmer: #5e6e5e;
-  --c-font-clear: #dce8dc;
-  --c-font-link: #4caf50;
-  --c-font-page: #b8c4b8;
+  --c-font: #b0b8c4;
+  --c-font-dim: #7a8594;
+  --c-font-dimmer: #505a68;
+  --c-font-clear: #d8dfe8;
+  --c-font-link: #5a9e6f;
+  --c-font-page: #b0b8c4;
 
-  --c-primary: #4caf50;
-  --c-primary-dim: #388e3c;
-  --c-accent: #66bb6a;
-  --c-good: #4caf50;
-  --c-bad: #ef5350;
-  --c-warn: #ffa726;
+  --c-primary: #5a9e6f;
+  --c-primary-dim: #4a8660;
+  --c-accent: #6db882;
+  --c-good: #5a9e6f;
+  --c-bad: #d45555;
+  --c-warn: #d4a04a;
 
-  --c-border: #2a352a;
-  --c-border-page: rgba(76, 175, 80, 0.08);
+  --c-border: #2a2d33;
+  --c-border-page: rgba(255,255,255,0.05);
 
   --c-shade: rgba(0, 0, 0, 0.5);
   --c-shadow: rgba(0, 0, 0, 0.6);
@@ -1441,7 +1441,19 @@ cg-board {
 
 /* Smooth button feedback */
 button, .game-actions__btn, .panel-nav__btn, .lobby-action {
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+}
+
+/* Global card depth */
+.panel__section, .game-panel, .lobby-sidebar__section {
+  border-radius: 8px;
+  box-shadow: 0 1px 4px var(--c-shade);
 }
 
 button:active:not(:disabled) {
@@ -2460,7 +2472,7 @@ button:active, .btn:active {
 
 .puzzles-feedback--correct {
   color: #fff;
-  background: #4caf50;
+  background: #5a9e6f;
 }
 
 .puzzles-feedback--wrong {
@@ -2470,7 +2482,7 @@ button:active, .btn:active {
 
 .puzzles-feedback--solved {
   color: #fff;
-  background: linear-gradient(135deg, #4caf50, #2196f3);
+  background: linear-gradient(135deg, #5a9e6f, #2196f3);
 }
 
 /* Puzzle Board — uses same ChessBoard/chessground as game */
@@ -2786,7 +2798,7 @@ button:active, .btn:active {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: linear-gradient(145deg, #0a0e14 0%, #111a22 40%, #0d1a12 100%);
+  background: linear-gradient(145deg, #0d0f12 0%, #121416 40%, #10131a 100%);
 }
 
 .landing__bg {
@@ -2802,8 +2814,8 @@ button:active, .btn:active {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(76, 175, 80, 0.06) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 30%, rgba(76, 175, 80, 0.04) 0%, transparent 50%);
+    radial-gradient(ellipse at 20% 50%, rgba(90, 158, 111, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 30%, rgba(90, 158, 111, 0.04) 0%, transparent 50%);
 }
 
 .landing__grid {
@@ -2833,14 +2845,14 @@ button:active, .btn:active {
 .landing__glow--1 {
   width: 500px; height: 500px;
   left: -100px; top: -100px;
-  background: radial-gradient(circle, rgba(76, 175, 80, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(90, 158, 111, 0.08) 0%, transparent 70%);
   animation: glowPulse 8s ease-in-out infinite;
 }
 
 .landing__glow--2 {
   width: 400px; height: 400px;
   right: -80px; bottom: -80px;
-  background: radial-gradient(circle, rgba(76, 175, 80, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(90, 158, 111, 0.06) 0%, transparent 70%);
   animation: glowPulse 10s ease-in-out infinite reverse;
 }
 
@@ -2892,9 +2904,9 @@ button:active, .btn:active {
 }
 
 .landing__icon {
-  color: #4caf50;
+  color: #5a9e6f;
   margin-bottom: 16px;
-  filter: drop-shadow(0 4px 16px rgba(76, 175, 80, 0.4));
+  filter: drop-shadow(0 4px 16px rgba(90, 158, 111, 0.4));
 }
 
 .landing__icon--animated {
@@ -2919,7 +2931,7 @@ button:active, .btn:active {
 }
 
 .landing__title-master {
-  color: #4caf50;
+  color: #5a9e6f;
 }
 
 .landing__subtitle {
@@ -2951,13 +2963,13 @@ button:active, .btn:active {
 }
 
 .landing__feature:hover {
-  border-color: rgba(76, 175, 80, 0.3);
-  background: rgba(76, 175, 80, 0.05);
+  border-color: rgba(90, 158, 111, 0.3);
+  background: rgba(90, 158, 111, 0.05);
   transform: translateY(-2px);
 }
 
 .landing__feature-icon {
-  color: #4caf50;
+  color: #5a9e6f;
   flex-shrink: 0;
   display: flex;
   margin-top: 2px;
@@ -2999,14 +3011,14 @@ button:active, .btn:active {
 }
 
 .landing__btn--primary {
-  background: #4caf50;
+  background: #5a9e6f;
   color: #fff;
-  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+  box-shadow: 0 4px 16px rgba(90, 158, 111, 0.3);
 }
 
 .landing__btn--primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(76, 175, 80, 0.4);
+  box-shadow: 0 8px 24px rgba(90, 158, 111, 0.4);
   background: #55c059;
 }
 
@@ -3019,9 +3031,9 @@ button:active, .btn:active {
 }
 
 .landing__btn--secondary:hover {
-  border-color: #4caf50;
-  color: #4caf50;
-  background: rgba(76, 175, 80, 0.05);
+  border-color: #5a9e6f;
+  color: #5a9e6f;
+  background: rgba(90, 158, 111, 0.05);
 }
 
 .landing__btn--full { width: 100%; flex: unset; }
@@ -3085,9 +3097,9 @@ button:active, .btn:active {
 .landing__input::placeholder { color: rgba(255,255,255,0.2); }
 
 .landing__input:focus {
-  border-color: #4caf50;
+  border-color: #5a9e6f;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+  box-shadow: 0 0 0 3px rgba(90, 158, 111, 0.15);
 }
 
 .landing__error {
@@ -3102,7 +3114,7 @@ button:active, .btn:active {
 .landing__switch {
   background: none;
   border: none;
-  color: #4caf50;
+  color: #5a9e6f;
   font-size: 14px;
   cursor: pointer;
   margin-top: 16px;
