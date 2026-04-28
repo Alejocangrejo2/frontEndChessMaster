@@ -2545,8 +2545,108 @@ button:active, .btn:active {
   transform: none;
 }
 
+.lobby-join-code__error {
+  color: var(--c-bad);
+  font-size: 13px;
+  text-align: center;
+}
+
 /* ============================================
-   RESPONSIVE — Puzzle board mobile
+   WAITING LOBBY — Esperando oponente
+   ============================================ */
+
+.lobby-waiting {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  padding: 20px;
+}
+
+.lobby-waiting__card {
+  background: var(--c-bg-box);
+  border-radius: 16px;
+  padding: 40px 48px;
+  text-align: center;
+  box-shadow: 0 4px 24px var(--c-shadow);
+  max-width: 480px;
+  width: 100%;
+  animation: slideUp 0.4s ease-out;
+}
+
+.lobby-waiting__icon {
+  margin-bottom: 16px;
+  color: var(--c-primary);
+}
+
+.lobby-waiting__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--c-font-clear);
+  margin: 0 0 8px;
+}
+
+.lobby-waiting__subtitle {
+  font-size: 14px;
+  color: var(--c-font-dim);
+  margin: 0 0 20px;
+}
+
+.lobby-waiting__code {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: 8px;
+  font-family: monospace;
+  color: var(--c-primary);
+  background: var(--c-bg-input);
+  border: 2px dashed var(--c-border);
+  border-radius: 12px;
+  padding: 16px 24px;
+  margin: 0 auto 16px;
+  user-select: all;
+  cursor: pointer;
+}
+
+.lobby-waiting__hint {
+  font-size: 13px;
+  color: var(--c-font-dimmer);
+  margin: 0 0 8px;
+}
+
+.lobby-waiting__link {
+  font-size: 12px;
+  color: var(--c-font-link);
+  background: var(--c-bg-input);
+  padding: 8px 12px;
+  border-radius: 8px;
+  word-break: break-all;
+  margin: 0 0 24px;
+  user-select: all;
+}
+
+.lobby-waiting__cancel {
+  padding: 10px 32px;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--c-font-dim);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lobby-waiting__cancel:hover {
+  border-color: var(--c-bad);
+  color: var(--c-bad);
+}
+
+/* Pulsing animation for waiting */
+.lobby-waiting__icon {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* ============================================
+   RESPONSIVE — Puzzle board + lobby mobile
    ============================================ */
 
 @media (max-width: 600px) {
@@ -2565,5 +2665,12 @@ button:active, .btn:active {
   }
   .lobby-join-code__row {
     flex-direction: column;
+  }
+  .lobby-waiting__card {
+    padding: 24px;
+  }
+  .lobby-waiting__code {
+    font-size: 28px;
+    letter-spacing: 6px;
   }
 }

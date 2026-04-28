@@ -243,7 +243,7 @@ export const PuzzlesPage: React.FC = () => {
         <div className="puzzles-stats__item">
           <span className="puzzles-stats__label">Racha</span>
           <span className="puzzles-stats__value" style={{ color: streak > 0 ? '#4caf50' : 'inherit' }}>
-            🔥 {streak}
+            {streak}
           </span>
         </div>
         <div className="puzzles-stats__item">
@@ -252,7 +252,7 @@ export const PuzzlesPage: React.FC = () => {
         </div>
         <div className="puzzles-stats__item">
           <span className="puzzles-stats__label">Mejor racha</span>
-          <span className="puzzles-stats__value">🏆 {bestStreak}</span>
+          <span className="puzzles-stats__value">{bestStreak}</span>
         </div>
         <div className="puzzles-stats__item">
           <span className="puzzles-stats__label">Dificultad</span>
@@ -269,7 +269,7 @@ export const PuzzlesPage: React.FC = () => {
           <span className="puzzles-info__theme">{currentPuzzle.theme}</span>
           {feedback === 'correct' && <span className="puzzles-feedback puzzles-feedback--correct">✓ Correcto — tu turno</span>}
           {feedback === 'wrong' && <span className="puzzles-feedback puzzles-feedback--wrong">✕ Incorrecto — intenta de nuevo</span>}
-          {feedback === 'solved' && <span className="puzzles-feedback puzzles-feedback--solved">🎉 ¡Puzzle resuelto!</span>}
+          {feedback === 'solved' && <span className="puzzles-feedback puzzles-feedback--solved">Puzzle resuelto!</span>}
           {!feedback && <span className="puzzles-info__hint">Juegan las {turnColor === 'white' ? 'blancas' : 'negras'}</span>}
         </div>
       )}
@@ -291,7 +291,7 @@ export const PuzzlesPage: React.FC = () => {
       {/* Controls */}
       <div className="puzzles-controls">
         <button className="puzzles-controls__btn" onClick={skipPuzzle}>
-          Saltar ⏭
+          Saltar
         </button>
         <button className="puzzles-controls__btn" onClick={resetPuzzle}>
           Reiniciar ↺

@@ -1,11 +1,11 @@
 // ============================================
-// LobbyPage.tsx — Pantalla principal de ChessMaster (simplificada)
+// LobbyPage.tsx -- Pantalla principal de ChessMaster
 // ============================================
-// Solo: Emparejamiento rapido + Jugar contra ordenador.
-// Sin: streams, torneos, stats, correspondencia, sala de espera.
+// Emparejamiento rapido (vs IA) + Crear partida privada + Unirse con codigo
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { TIME_CONTROLS, type TimeControl, type AIDifficulty } from '../hooks/useChessEngine';
+import { useMultiplayerGame } from '../hooks/useMultiplayerGame';
 import { FriendsPanel } from '../components/FriendsPanel';
 import type { Color } from 'chessground/types';
 
@@ -26,7 +26,12 @@ export const LobbyPage: React.FC = () => {
   );
   const [joinCode, setJoinCode] = useState('');
 
-  // Quick pairing: click a time control -> game with that exact time
+  // Multiplayer
+  const multiplayer = useMultiplayerGame();
+  const [waitingCode, setWaitingCode] = useState<string | null>(null);
+  const [isWaiting, setIsWaiting] = useState(false);
+
+  // Quick pairing: click a time control -> game with AI
   const handleQuickPlay = (tc: TimeControl) => {
     sessionStorage.setItem('gameConfig', JSON.stringify({
       timeControl: tc,
@@ -34,7 +39,6 @@ export const LobbyPage: React.FC = () => {
       aiLevel: selectedLevel,
       playerColor: 'white',
     }));
-    // Full page navigation to force hook re-initialization
     window.location.href = '/game';
   };
 
@@ -52,26 +56,88 @@ export const LobbyPage: React.FC = () => {
     window.location.href = '/game';
   };
 
+  // Create private game room
+  const handleCreateRoom = useCallback(async () => {
+    const code = await multiplayer.createRoom();
+    if (code) {
+      setWaitingCode(code);
+      setIsWaiting(true);
+      // Start polling to detect when opponent joins
+      multiplayer.startPolling(code);
+    }
+  }, [multiplayer]);
+
   // Join game with code
-  const handleJoinWithCode = () => {
+  const handleJoinWithCode = useCallback(async () => {
     const code = joinCode.trim().toUpperCase();
     if (code.length < 4) return;
-    
-    sessionStorage.setItem('gameConfig', JSON.stringify({
-      timeControl: { minutes: 10, increment: 0, name: '10+0', label: '10+0', category: 'rapid' },
-      isVsAI: false,
-      privateCode: code,
-      playerColor: 'black', // Joiner plays black
-    }));
-    window.location.href = `/game/${code}`;
-  };
+    const room = await multiplayer.joinRoom(code);
+    if (room) {
+      // Save config and navigate to game
+      sessionStorage.setItem('gameConfig', JSON.stringify({
+        timeControl: { minutes: 10, increment: 0, name: '10+0', label: '10+0', category: 'rapid' },
+        isVsAI: false,
+        playerColor: room.myColor,
+        roomCode: room.code,
+      }));
+      window.location.href = `/game?room=${room.code}`;
+    }
+  }, [joinCode, multiplayer]);
 
-  // Time controls for the grid (exclude unlimited)
+  // Check if opponent joined (polling effect)
+  React.useEffect(() => {
+    if (isWaiting && multiplayer.roomState && multiplayer.roomState.status === 'ACTIVE') {
+      // Opponent joined! Navigate to game
+      multiplayer.stopPolling();
+      sessionStorage.setItem('gameConfig', JSON.stringify({
+        timeControl: { minutes: 10, increment: 0, name: '10+0', label: '10+0', category: 'rapid' },
+        isVsAI: false,
+        playerColor: 'white', // Creator is always white
+        roomCode: waitingCode,
+      }));
+      window.location.href = `/game?room=${waitingCode}`;
+    }
+  }, [isWaiting, multiplayer.roomState, waitingCode, multiplayer]);
+
   const timeControlsGrid = TIME_CONTROLS.filter(tc => tc.category !== 'unlimited');
+
+  // === WAITING SCREEN ===
+  if (isWaiting && waitingCode) {
+    return (
+      <div className="lobby-page" id="lobby-page">
+        <div className="lobby-waiting" id="lobby-waiting">
+          <div className="lobby-waiting__card">
+            <div className="lobby-waiting__icon">
+              <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor" style={{opacity: 0.5}}>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              </svg>
+            </div>
+            <h2 className="lobby-waiting__title">Esperando oponente...</h2>
+            <p className="lobby-waiting__subtitle">Comparte este codigo con tu amigo</p>
+            <div className="lobby-waiting__code">{waitingCode}</div>
+            <p className="lobby-waiting__hint">O comparte este link:</p>
+            <div className="lobby-waiting__link">
+              {window.location.origin}/game?room={waitingCode}
+            </div>
+            <button
+              className="lobby-waiting__cancel"
+              onClick={() => {
+                setIsWaiting(false);
+                setWaitingCode(null);
+                multiplayer.stopPolling();
+              }}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="lobby-page" id="lobby-page">
-      {/* Main content — time control grid */}
+      {/* Main content -- time control grid */}
       <div className="lobby-page__main" id="lobby-main">
         <div className="lobby-section-title">Emparejamiento rapido</div>
 
@@ -92,7 +158,7 @@ export const LobbyPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Right sidebar — play vs computer + join code + friends */}
+      {/* Right sidebar */}
       <aside className="lobby-page__actions" id="lobby-actions">
         <button
           className="lobby-action lobby-action--accent"
@@ -107,16 +173,33 @@ export const LobbyPage: React.FC = () => {
           <span className="lobby-action__text">Jugar contra el ordenador</span>
         </button>
 
+        {/* CREATE PRIVATE GAME */}
+        <button
+          className="lobby-action"
+          onClick={handleCreateRoom}
+          disabled={multiplayer.isCreating}
+          id="btn-create-room"
+        >
+          <span className="lobby-action__icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+          </span>
+          <span className="lobby-action__text">
+            {multiplayer.isCreating ? 'Creando...' : 'Crear partida privada'}
+          </span>
+        </button>
+
         {/* JOIN WITH CODE */}
         <div className="lobby-join-code" id="lobby-join-code">
           <div className="lobby-join-code__title">
-            🔗 Unirse con código
+            Unirse con codigo
           </div>
           <div className="lobby-join-code__row">
             <input
               className="lobby-join-code__input"
               type="text"
-              placeholder="Pegar código..."
+              placeholder="Pegar codigo..."
               value={joinCode}
               onChange={e => setJoinCode(e.target.value.toUpperCase())}
               onKeyDown={e => e.key === 'Enter' && handleJoinWithCode()}
@@ -126,12 +209,15 @@ export const LobbyPage: React.FC = () => {
             <button
               className="lobby-join-code__btn"
               onClick={handleJoinWithCode}
-              disabled={joinCode.trim().length < 4}
+              disabled={joinCode.trim().length < 4 || multiplayer.isJoining}
               id="btn-join-code"
             >
-              Unirse
+              {multiplayer.isJoining ? '...' : 'Unirse'}
             </button>
           </div>
+          {multiplayer.error && (
+            <div className="lobby-join-code__error">{multiplayer.error}</div>
+          )}
         </div>
 
         {/* Friends panel */}
@@ -141,14 +227,13 @@ export const LobbyPage: React.FC = () => {
         />
       </aside>
 
-      {/* Game setup modal */}
+      {/* Game setup modal (vs AI) */}
       {showGameSetup && (
         <div className="modal-overlay" onClick={() => setShowGameSetup(false)} id="game-setup-modal">
           <div className="modal game-setup" onClick={e => e.stopPropagation()}>
             <button className="modal__close" onClick={() => setShowGameSetup(false)}>x</button>
             <h2 className="game-setup__title">Configuracion de la partida</h2>
 
-            {/* Variant info */}
             <div className="game-setup__variant">
               <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" style={{opacity: 0.6}}>
                 <path d="M19 22H5v-2h14v2zm2-20H3v16h18V2zm-2 14H5V4h14v12z"/>
@@ -157,7 +242,6 @@ export const LobbyPage: React.FC = () => {
               <span className="game-setup__variant-desc">Reglas de ajedrez FIDE</span>
             </div>
 
-            {/* Time control for AI game */}
             <div className="game-setup__section">
               <label className="game-setup__label">Control de tiempo</label>
               <div className="game-setup__time-grid">
@@ -173,7 +257,6 @@ export const LobbyPage: React.FC = () => {
               </div>
             </div>
 
-            {/* AI Level */}
             <div className="game-setup__section">
               <label className="game-setup__label">Nivel de dificultad</label>
               <div className="game-setup__levels">
@@ -189,7 +272,6 @@ export const LobbyPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Color selector */}
             <div className="game-setup__section">
               <label className="game-setup__label">Color</label>
               <div className="game-setup__colors">
@@ -217,7 +299,6 @@ export const LobbyPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Play button */}
             <button className="game-setup__play" onClick={handlePlayComputer} id="btn-start-game">
               Jugar contra el ordenador
             </button>
