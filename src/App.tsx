@@ -1,10 +1,11 @@
 // ============================================
-// App.tsx — Root de ChessMaster
+// App.tsx -- Root de ChessMaster
 // ============================================
 
 import React, { useState, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Header } from './components/layout/Header';
+import { LandingPage } from './pages/LandingPage';
 import { LobbyPage } from './pages/LobbyPage';
 import { GamePage } from './pages/GamePage';
 import { HistoryPage } from './pages/HistoryPage';
@@ -12,22 +13,18 @@ import { AnalysisPage } from './pages/AnalysisPage';
 import { FriendsPage } from './pages/FriendsPage';
 import { PuzzlesPage } from './pages/PuzzlesPage';
 import { MultiplayerGamePage } from './pages/MultiplayerGamePage';
-import { LoginModal } from './components/LoginModal';
 
 export type BoardTheme = 'brown' | 'green' | 'blue' | 'gray';
 
 /**
- * Wrapper that detects if this is a multiplayer game (has ?room= param)
- * and routes to the correct game page.
+ * Detects multiplayer (via ?room= or sessionStorage) and routes accordingly.
  */
 const GamePageWrapper: React.FC<{ username: string | null }> = ({ username }) => {
   const location = useLocation();
 
-  // Check for multiplayer room
   const searchParams = new URLSearchParams(location.search);
   const roomCode = searchParams.get('room');
 
-  // Also check sessionStorage for roomCode
   const config = (() => {
     try {
       const stored = sessionStorage.getItem('gameConfig');
@@ -56,7 +53,6 @@ const App: React.FC = () => {
   const [username, setUsername] = useState<string | null>(
     localStorage.getItem('chess_username')
   );
-  const [showLogin, setShowLogin] = useState(false);
 
   // LIGHT theme by default
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -73,7 +69,6 @@ const App: React.FC = () => {
   const handleLogin = useCallback((name: string) => {
     localStorage.setItem('chess_username', name);
     setUsername(name);
-    setShowLogin(false);
   }, []);
 
   const handleLogout = useCallback(() => {
@@ -94,18 +89,28 @@ const App: React.FC = () => {
     document.documentElement.setAttribute('data-board', bt);
   }, []);
 
-  // Apply theme + board theme on mount
+  // Apply theme on mount
   React.useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     document.documentElement.setAttribute('data-board', boardTheme);
   }, [theme, boardTheme]);
 
+  // NOT logged in -> show landing page
+  if (!username) {
+    return (
+      <div className={`app theme--${theme}`} id="app-root">
+        <LandingPage onLogin={(name, _token) => handleLogin(name)} />
+      </div>
+    );
+  }
+
+  // Logged in -> full app
   return (
     <BrowserRouter>
       <div className={`app theme--${theme}`} id="app-root">
         <Header
           username={username}
-          onLogin={() => setShowLogin(true)}
+          onLogin={() => {}}
           onLogout={handleLogout}
           onSetTheme={handleSetTheme}
           onSetBoardTheme={handleSetBoardTheme}
@@ -130,13 +135,6 @@ const App: React.FC = () => {
             } />
           </Routes>
         </main>
-
-        {showLogin && (
-          <LoginModal
-            onLogin={handleLogin}
-            onClose={() => setShowLogin(false)}
-          />
-        )}
       </div>
     </BrowserRouter>
   );
