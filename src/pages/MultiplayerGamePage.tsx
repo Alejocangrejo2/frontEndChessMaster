@@ -1,10 +1,9 @@
 // ============================================
 // MultiplayerGamePage.tsx -- Partida multijugador sincronizada
 // ============================================
-// USA EL BACKEND COMO FUENTE UNICA DE VERDAD.
-// Ambos jugadores ven el mismo estado.
-// Solo el jugador en turno puede mover.
-// Solo puede mover piezas de su color.
+// Backend = fuente unica de verdad.
+// Detecta correctamente: jaque mate, tablas, rendicion.
+// Incluye pantalla post-partida con revision de movimientos.
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { ChessBoard } from '../components/ChessBoard';
@@ -16,20 +15,33 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 function authHeaders(): Record<string, string> {
   const token = localStorage.getItem('chess_token');
-  return token ? { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+  return token
+    ? { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+    : { 'Content-Type': 'application/json' };
+}
+
+interface RoomMove {
+  moveNumber: number;
+  from: string;
+  to: string;
+  san: string;
+  color: string;
+  fen: string;
 }
 
 interface RoomState {
   code: string;
   whitePlayer: string;
   blackPlayer: string | null;
-  status: string;
+  status: string;       // WAITING, ACTIVE, FINISHED
   fen: string;
   currentTurn: string;
   lastMove: string | null;
   winner: string | null;
+  endReason: string | null; // CHECKMATE, STALEMATE, DRAW, RESIGNED, ABANDONED
   moveCount: number;
   myColor: 'white' | 'black';
+  moves: RoomMove[];
 }
 
 interface MultiplayerGamePageProps {
@@ -42,7 +54,12 @@ export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCo
   const [roomState, setRoomState] = useState<RoomState | null>(null);
   const [statusMessage, setStatusMessage] = useState('Conectando...');
   const [isGameOver, setIsGameOver] = useState(false);
+  const [showResignConfirm, setShowResignConfirm] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Review state
+  const [reviewIndex, setReviewIndex] = useState<number | null>(null);
+  const isReviewing = reviewIndex !== null;
 
   // Poll the backend for state
   const pollState = useCallback(async () => {
@@ -54,24 +71,39 @@ export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCo
         const data = await res.json() as RoomState;
         setRoomState(data);
 
-        // Update status
         if (data.status === 'WAITING') {
           setStatusMessage('Esperando oponente...');
         } else if (data.status === 'ACTIVE') {
-          if (data.currentTurn === myColor) {
-            setStatusMessage('Tu turno');
-          } else {
-            setStatusMessage('Turno del oponente');
+          setStatusMessage(data.currentTurn === myColor ? 'Tu turno' : 'Turno del oponente');
+        } else if (data.status === 'FINISHED') {
+          setIsGameOver(true);
+          // Stop polling once game is over
+          if (pollingRef.current) {
+            clearInterval(pollingRef.current);
+            pollingRef.current = null;
           }
-        } else if (data.status === 'RESIGNED') {
-          setIsGameOver(true);
-          setStatusMessage(data.winner === myColor ? 'Victoria - Oponente se rindio' : 'Derrota - Te rendiste');
-        } else if (data.status === 'CHECKMATE') {
-          setIsGameOver(true);
-          setStatusMessage(data.winner === myColor ? 'Victoria - Jaque mate' : 'Derrota - Jaque mate');
-        } else if (data.status === 'STALEMATE' || data.status === 'DRAW') {
-          setIsGameOver(true);
-          setStatusMessage('Tablas');
+          // Build correct end message
+          const isWinner = data.winner === myColor;
+          const isDraw = !data.winner;
+          switch (data.endReason) {
+            case 'CHECKMATE':
+              setStatusMessage(isWinner ? 'Victoria por jaque mate' : 'Derrota por jaque mate');
+              break;
+            case 'STALEMATE':
+              setStatusMessage('Tablas por ahogado');
+              break;
+            case 'DRAW':
+              setStatusMessage('Tablas');
+              break;
+            case 'RESIGNED':
+              setStatusMessage(isWinner ? 'Victoria - El oponente se rindio' : 'Derrota - Te rendiste');
+              break;
+            case 'ABANDONED':
+              setStatusMessage(isWinner ? 'Victoria por abandono' : 'Derrota por abandono');
+              break;
+            default:
+              setStatusMessage(isDraw ? 'Tablas' : (isWinner ? 'Victoria' : 'Derrota'));
+          }
         }
       }
     } catch { /* silent */ }
@@ -79,14 +111,14 @@ export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCo
 
   // Start polling on mount
   useEffect(() => {
-    pollState(); // immediate
+    pollState();
     pollingRef.current = setInterval(pollState, 2000);
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current);
     };
   }, [pollState]);
 
-  // Calculate legal dests from local engine (only for our color, only on our turn)
+  // Calculate legal dests (only for our color, only on our turn)
   const legalDests = useMemo(() => {
     if (!roomState || roomState.status !== 'ACTIVE' || roomState.currentTurn !== myColor) {
       return new Map<Key, Key[]>();
@@ -99,43 +131,57 @@ export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCo
     }
   }, [roomState, myColor]);
 
-  // Handle move -- send to backend
+  // Handle move -- validate locally, send to backend, detect game end
   const handleMove = useCallback(async (from: Key, to: Key) => {
     if (!roomState || roomState.currentTurn !== myColor || isGameOver) return;
 
     try {
-      // Create fresh engine from current FEN to validate and compute new FEN
       const tempEngine = new ChessEngine(roomState.fen);
-      // Auto-promote to queen if needed
       const promotion = tempEngine.needsPromotion(from, to) ? 'queen' as const : undefined;
       const moveResult = tempEngine.move(from, to, promotion);
-      if (!moveResult) return; // illegal move
+      if (!moveResult) return;
 
       const newFen = tempEngine.fen();
-      const newStatus = tempEngine.status;
+      const san = moveResult.san;
+      const gameStatus = tempEngine.status;
 
-      // Send to backend
+      // Send move to backend
       const res = await fetch(`${API_URL}/api/room/${roomCode}/move`, {
         method: 'POST',
         headers: authHeaders(),
-        body: JSON.stringify({ from, to, fen: newFen }),
+        body: JSON.stringify({ from, to, fen: newFen, san }),
       });
 
       if (res.ok) {
         const data = await res.json() as RoomState;
         setRoomState(data);
 
-        // Check if game ended (checkmate/stalemate)
-        if (newStatus === 'checkmate' || newStatus === 'stalemate') {
-          const winner = newStatus === 'checkmate' ? myColor : undefined;
-          await fetch(`${API_URL}/api/room/${roomCode}/resign`, {
+        // Detect game-ending conditions AFTER the move
+        if (gameStatus === 'checkmate') {
+          await fetch(`${API_URL}/api/room/${roomCode}/end`, {
             method: 'POST',
             headers: authHeaders(),
-          }).catch(() => {});
+            body: JSON.stringify({ reason: 'CHECKMATE', winner: myColor }),
+          });
+          pollState(); // Immediately refresh to get final state
+        } else if (gameStatus === 'stalemate') {
+          await fetch(`${API_URL}/api/room/${roomCode}/end`, {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({ reason: 'STALEMATE', winner: null }),
+          });
+          pollState();
+        } else if (gameStatus === 'draw') {
+          await fetch(`${API_URL}/api/room/${roomCode}/end`, {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({ reason: 'DRAW', winner: null }),
+          });
+          pollState();
         }
       }
     } catch { /* silent */ }
-  }, [roomState, roomCode, myColor, isGameOver]);
+  }, [roomState, roomCode, myColor, isGameOver, pollState]);
 
   // Resign
   const handleResign = useCallback(async () => {
@@ -148,25 +194,64 @@ export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCo
     } catch { /* silent */ }
   }, [roomCode, pollState]);
 
-  // Derive display state
-  const displayFen = roomState?.fen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+  // === Review functions ===
+  const moves = roomState?.moves || [];
+  const goToMove = (index: number) => {
+    if (index < 0 || index >= moves.length) return;
+    setReviewIndex(index);
+  };
+  const goToStart = () => setReviewIndex(moves.length > 0 ? 0 : null);
+  const goToEnd = () => setReviewIndex(null);
+  const goBack = () => {
+    if (reviewIndex === null && moves.length > 0) setReviewIndex(moves.length - 1);
+    else if (reviewIndex !== null && reviewIndex > 0) setReviewIndex(reviewIndex - 1);
+  };
+  const goForward = () => {
+    if (reviewIndex !== null) {
+      if (reviewIndex >= moves.length - 1) setReviewIndex(null);
+      else setReviewIndex(reviewIndex + 1);
+    }
+  };
+
+  // === Derive display state ===
+  const displayFen = isReviewing && reviewIndex !== null && moves[reviewIndex]
+    ? moves[reviewIndex].fen
+    : (roomState?.fen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+
   const turnColor = (roomState?.currentTurn || 'white') as Color;
   const isMyTurn = roomState?.currentTurn === myColor;
 
   const lastMoveKeys: [Key, Key] | undefined = useMemo(() => {
+    if (isReviewing && reviewIndex !== null && moves[reviewIndex]) {
+      return [moves[reviewIndex].from as Key, moves[reviewIndex].to as Key];
+    }
     if (!roomState?.lastMove) return undefined;
     const parts = roomState.lastMove.split(',');
     if (parts.length !== 2) return undefined;
     return [parts[0] as Key, parts[1] as Key];
-  }, [roomState?.lastMove]);
+  }, [roomState?.lastMove, isReviewing, reviewIndex, moves]);
 
   const opponentName = roomState
     ? (myColor === 'white' ? (roomState.blackPlayer || 'Esperando...') : roomState.whitePlayer)
     : 'Esperando...';
 
-  const viewOnly = !isMyTurn || isGameOver || roomState?.status !== 'ACTIVE';
+  // Display dests: empty during review or when game is over
+  const displayDests = isReviewing || isGameOver ? new Map<Key, Key[]>() : legalDests;
 
-  const [showResignConfirm, setShowResignConfirm] = useState(false);
+  // Group moves into pairs for display (1. e4 e5  2. Nf3 Nc6 ...)
+  const movePairs = useMemo(() => {
+    const pairs: { num: number; white?: RoomMove; black?: RoomMove; whiteIdx: number; blackIdx: number }[] = [];
+    for (let i = 0; i < moves.length; i += 2) {
+      pairs.push({
+        num: Math.floor(i / 2) + 1,
+        white: moves[i],
+        black: moves[i + 1],
+        whiteIdx: i,
+        blackIdx: i + 1,
+      });
+    }
+    return pairs;
+  }, [moves]);
 
   return (
     <div className="game-page" id="game-page">
@@ -175,7 +260,7 @@ export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCo
         <div className="game-info">
           <div className="game-info__header">
             <span className="game-info__type">
-              Partida privada - Codigo: {roomCode}
+              Partida privada - {roomCode}
             </span>
           </div>
           <div className="game-info__players">
@@ -210,8 +295,8 @@ export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCo
           turnColor={turnColor}
           movableColor={myColor}
           lastMove={lastMoveKeys}
-          dests={legalDests}
-          viewOnly={isGameOver}
+          dests={displayDests}
+          viewOnly={isGameOver || isReviewing}
           onMove={handleMove}
         />
 
@@ -234,6 +319,52 @@ export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCo
           <span className="panel-player__name">{opponentName}</span>
         </div>
 
+        {/* Move navigation */}
+        {moves.length > 0 && (
+          <div className="panel-nav" id="move-nav">
+            <button className="panel-nav__btn" title="Inicio" onClick={goToStart}>|&lt;</button>
+            <button className="panel-nav__btn" title="Anterior" onClick={goBack}>&lt;</button>
+            <button className="panel-nav__btn" title="Siguiente" onClick={goForward}>&gt;</button>
+            <button className="panel-nav__btn" title="Final" onClick={goToEnd}>&gt;|</button>
+          </div>
+        )}
+
+        {/* Move list */}
+        {moves.length > 0 && (
+          <div className="move-list" id="move-list">
+            <div className="move-list__scroll">
+              {movePairs.map(pair => (
+                <div className="move-list__row" key={pair.num}>
+                  <span className="move-list__number">{pair.num}.</span>
+                  {pair.white && (
+                    <span
+                      className={`move-list__move ${reviewIndex === pair.whiteIdx ? 'move-list__move--active' : ''}`}
+                      onClick={() => goToMove(pair.whiteIdx)}
+                    >
+                      {pair.white.san}
+                    </span>
+                  )}
+                  {pair.black && (
+                    <span
+                      className={`move-list__move ${reviewIndex === pair.blackIdx ? 'move-list__move--active' : ''}`}
+                      onClick={() => goToMove(pair.blackIdx)}
+                    >
+                      {pair.black.san}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Review indicator */}
+        {isReviewing && (
+          <div className="panel-review-indicator" onClick={goToEnd}>
+            Revisando jugada {(reviewIndex ?? 0) + 1} de {moves.length} - Clic para volver
+          </div>
+        )}
+
         {/* Status */}
         <div className={`game-status game-status--${isGameOver ? 'checkmate' : 'playing'}`} id="game-status">
           <div className="game-status__text">
@@ -246,7 +377,7 @@ export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCo
           </div>
         </div>
 
-        {/* Actions */}
+        {/* Actions during game */}
         {!isGameOver && roomState?.status === 'ACTIVE' && (
           <div className="game-actions" id="game-actions">
             <button
@@ -266,7 +397,7 @@ export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCo
           </div>
         )}
 
-        {/* Game over */}
+        {/* Post-game actions */}
         {isGameOver && (
           <div className="game-over-actions" id="game-over-actions">
             <button
@@ -274,7 +405,32 @@ export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCo
               onClick={() => window.location.href = '/'}
               id="btn-new-game"
             >
-              Volver al lobby
+              Nueva partida
+            </button>
+            <button
+              className="game-over-actions__btn game-over-actions__btn--analyze"
+              onClick={() => {
+                if (roomState) {
+                  const analysisData = {
+                    positions: ['rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+                      ...moves.map(m => m.fen)],
+                    moves: moves.map(m => ({
+                      san: m.san,
+                      from: m.from,
+                      to: m.to,
+                      color: m.color,
+                    })),
+                    playerColor: myColor,
+                    playerName: username,
+                    opponentName,
+                  };
+                  sessionStorage.setItem('analysis_game', JSON.stringify(analysisData));
+                  window.location.href = '/analysis';
+                }
+              }}
+              id="btn-analyze"
+            >
+              Analizar partida
             </button>
           </div>
         )}
