@@ -208,9 +208,10 @@ export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCo
           fen={displayFen}
           orientation={myColor}
           turnColor={turnColor}
+          movableColor={myColor}
           lastMove={lastMoveKeys}
           dests={legalDests}
-          viewOnly={viewOnly}
+          viewOnly={isGameOver}
           onMove={handleMove}
         />
 

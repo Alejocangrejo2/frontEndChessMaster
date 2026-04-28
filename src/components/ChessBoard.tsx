@@ -1,5 +1,5 @@
 // ============================================
-// ChessBoard.tsx — Tablero interactivo usando chessground (motor visual oficial de Lichess)
+// ChessBoard.tsx -- Tablero interactivo usando chessground
 // ============================================
 
 import React, { useRef, useEffect } from 'react';
@@ -17,6 +17,7 @@ export interface ChessBoardProps {
   fen: string;
   orientation?: Color;
   turnColor?: Color;
+  movableColor?: Color;   // NEW: which color the player controls
   lastMove?: [Key, Key];
   check?: Key | boolean;
   dests?: LegalDests;
@@ -29,6 +30,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
   fen,
   orientation = 'white',
   turnColor = 'white',
+  movableColor,
   lastMove,
   check,
   dests,
@@ -38,9 +40,12 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
 }) => {
   const boardRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<Api | null>(null);
-  // Use ref for onMove so chessground always calls the latest version
   const onMoveRef = useRef(onMove);
   onMoveRef.current = onMove;
+
+  // Determine which color can move
+  // If movableColor is set, use it. Otherwise fall back to turnColor.
+  const effectiveColor = viewOnly ? undefined : (movableColor || turnColor);
 
   // Initialize chessground ONCE on mount
   useEffect(() => {
@@ -54,12 +59,12 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
       check: check ? true : undefined,
       coordinates: true,
       autoCastle: true,
-      viewOnly,
+      viewOnly: false, // NEVER set viewOnly on init — control via movable instead
       highlight: { lastMove: true, check: true },
       animation: { enabled: animation, duration: 200 },
       movable: {
         free: false,
-        color: viewOnly ? undefined : turnColor,
+        color: effectiveColor,
         dests: dests as Map<Key, Key[]> | undefined,
         showDests: true,
         events: {
@@ -93,10 +98,9 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
       turnColor,
       lastMove: lastMove as Key[] | undefined,
       check: check ? true : undefined,
-      viewOnly,
       movable: {
         free: false,
-        color: viewOnly ? undefined : turnColor,
+        color: effectiveColor,
         dests: dests as Map<Key, Key[]> | undefined,
         showDests: true,
         events: {
@@ -105,8 +109,9 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
           },
         },
       },
+      draggable: { enabled: !viewOnly },
     });
-  }, [fen, orientation, turnColor, lastMove, check, dests, viewOnly]);
+  }, [fen, orientation, turnColor, lastMove, check, dests, viewOnly, effectiveColor]);
 
   return (
     <div className="board-container">
