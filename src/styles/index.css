@@ -454,10 +454,29 @@ a:hover { text-decoration: underline; }
   padding: 24px;
   cursor: pointer;
   text-align: center;
-  transition: background 0.15s;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.lobby-grid__item:hover { background: var(--c-bg-hover); }
+.lobby-grid__item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, var(--c-primary) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.lobby-grid__item:hover {
+  background: var(--c-bg-hover);
+  transform: scale(1.03);
+  z-index: 1;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.lobby-grid__item:hover::before { opacity: 0.06; }
+.lobby-grid__item:active { transform: scale(0.98); }
 
 .lobby-grid__time {
   font-size: 32px;
@@ -3042,3 +3061,85 @@ button:active, .btn:active {
   .landing__form-card { padding: 24px 18px; }
   .landing__content { padding: 24px 16px; }
 }
+
+/* ============================================
+   FLOATING CHESS PIECES (Landing background)
+   ============================================ */
+
+.landing__pieces {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.landing__piece {
+  position: absolute;
+  font-size: 48px;
+  opacity: 0.06;
+  color: var(--c-font);
+  animation: pieceFloat 15s ease-in-out infinite;
+}
+
+.landing__piece--1 { left: 5%;  top: 10%; animation-duration: 18s; animation-delay: 0s;   font-size: 56px; }
+.landing__piece--2 { left: 20%; top: 60%; animation-duration: 22s; animation-delay: -3s;  font-size: 40px; }
+.landing__piece--3 { left: 40%; top: 20%; animation-duration: 16s; animation-delay: -6s;  font-size: 64px; }
+.landing__piece--4 { left: 60%; top: 70%; animation-duration: 20s; animation-delay: -9s;  font-size: 52px; }
+.landing__piece--5 { left: 80%; top: 15%; animation-duration: 14s; animation-delay: -2s;  font-size: 36px; }
+.landing__piece--6 { left: 10%; top: 80%; animation-duration: 24s; animation-delay: -5s;  font-size: 44px; }
+.landing__piece--7 { left: 75%; top: 45%; animation-duration: 19s; animation-delay: -8s;  font-size: 48px; }
+.landing__piece--8 { left: 50%; top: 85%; animation-duration: 17s; animation-delay: -4s;  font-size: 60px; }
+
+@keyframes pieceFloat {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(20px, -30px) rotate(5deg);
+  }
+  50% {
+    transform: translate(-15px, -50px) rotate(-3deg);
+  }
+  75% {
+    transform: translate(10px, -20px) rotate(4deg);
+  }
+}
+
+/* ============================================
+   GLOBAL MICRO-ANIMATIONS
+   ============================================ */
+
+/* Smooth page fade-in */
+.app-main {
+  animation: pageFadeIn 0.4s ease-out;
+}
+
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Active state for all interactive buttons */
+.game-actions__btn:active,
+.panel-nav__btn:active,
+.lobby-action:active {
+  transform: scale(0.95);
+}
+
+/* Accent green glow for primary actions */
+.lobby-action--accent {
+  position: relative;
+}
+
+.lobby-action--accent::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--c-primary), transparent);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s;
+}
+
+.lobby-action--accent:hover::after { opacity: 0.15; }

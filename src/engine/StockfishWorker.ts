@@ -13,20 +13,31 @@ export interface StockfishConfig {
 }
 
 // Mapeo de nivel a configuracion UCI de Stockfish
-// Nivel 1: muy debil, Nivel 8: fuerte
-function getLevelConfig(level: number): { skillLevel: number; depth: number; moveTime: number } {
-  // Depths reducidos para evitar cálculos infinitos
-  // moveTime es el control PRINCIPAL — depth es secundario
+// Nivel 1: muy debil (principiante), Nivel 8: maxima fuerza
+//
+// Stockfish tiene 2 mecanismos para debilitarse:
+//   1. Skill Level (0-20): agrega errores aleatorios
+//   2. UCI_LimitStrength + UCI_Elo: limita el ELO directamente
+//
+// Para niveles bajos (1-5): usamos ambos
+// Para niveles altos (6-8): solo Skill Level, sin limite de ELO
+function getLevelConfig(level: number): {
+  skillLevel: number;
+  depth: number;
+  moveTime: number;
+  elo: number;
+  limitStrength: boolean;
+} {
   switch (level) {
-    case 1: return { skillLevel: 0, depth: 1, moveTime: 100 };
-    case 2: return { skillLevel: 3, depth: 2, moveTime: 200 };
-    case 3: return { skillLevel: 5, depth: 3, moveTime: 300 };
-    case 4: return { skillLevel: 8, depth: 5, moveTime: 500 };
-    case 5: return { skillLevel: 11, depth: 6, moveTime: 800 };
-    case 6: return { skillLevel: 14, depth: 8, moveTime: 1200 };
-    case 7: return { skillLevel: 17, depth: 10, moveTime: 1800 };
-    case 8: return { skillLevel: 20, depth: 12, moveTime: 2500 };
-    default: return { skillLevel: 0, depth: 1, moveTime: 100 };
+    case 1: return { skillLevel: 0,  depth: 1,  moveTime: 100,  elo: 800,  limitStrength: true };
+    case 2: return { skillLevel: 3,  depth: 3,  moveTime: 200,  elo: 1000, limitStrength: true };
+    case 3: return { skillLevel: 5,  depth: 5,  moveTime: 400,  elo: 1200, limitStrength: true };
+    case 4: return { skillLevel: 8,  depth: 6,  moveTime: 600,  elo: 1400, limitStrength: true };
+    case 5: return { skillLevel: 11, depth: 8,  moveTime: 800,  elo: 1600, limitStrength: true };
+    case 6: return { skillLevel: 15, depth: 12, moveTime: 1500, elo: 2000, limitStrength: true };
+    case 7: return { skillLevel: 18, depth: 15, moveTime: 2000, elo: 2500, limitStrength: false };
+    case 8: return { skillLevel: 20, depth: 18, moveTime: 3000, elo: 3000, limitStrength: false };
+    default: return { skillLevel: 0,  depth: 1,  moveTime: 100,  elo: 800,  limitStrength: true };
   }
 }
 
@@ -115,10 +126,13 @@ export class StockfishEngine {
   private applyLevel(level: number): void {
     const config = getLevelConfig(level);
     this.send(`setoption name Skill Level value ${config.skillLevel}`);
-    this.send('setoption name UCI_LimitStrength value true');
-    // Map skill level to approximate Elo
-    const elo = 800 + (level - 1) * 200; // 800 to 2200
-    this.send(`setoption name UCI_Elo value ${elo}`);
+    if (config.limitStrength) {
+      this.send('setoption name UCI_LimitStrength value true');
+      this.send(`setoption name UCI_Elo value ${config.elo}`);
+    } else {
+      // Full strength — no ELO limit
+      this.send('setoption name UCI_LimitStrength value false');
+    }
   }
 
   /**

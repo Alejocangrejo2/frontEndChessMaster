@@ -75,6 +75,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
       <div className="landing" id="landing-page">
         <div className="landing__bg">
           <div className="landing__grid"></div>
+          {/* Floating chess piece silhouettes */}
+          <div className="landing__pieces">
+            <span className="landing__piece landing__piece--1">&#9814;</span>
+            <span className="landing__piece landing__piece--2">&#9816;</span>
+            <span className="landing__piece landing__piece--3">&#9815;</span>
+            <span className="landing__piece landing__piece--4">&#9813;</span>
+            <span className="landing__piece landing__piece--5">&#9817;</span>
+            <span className="landing__piece landing__piece--6">&#9814;</span>
+            <span className="landing__piece landing__piece--7">&#9816;</span>
+            <span className="landing__piece landing__piece--8">&#9812;</span>
+          </div>
         </div>
         <div className="landing__content">
           <div className="landing__hero">
