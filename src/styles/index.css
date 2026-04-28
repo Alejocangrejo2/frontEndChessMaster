@@ -43,32 +43,32 @@
 
 /* === Theme: Dark === */
 [data-theme="dark"], .theme--dark {
-  --c-bg: #161512;
-  --c-bg-page: #161512;
-  --c-bg-box: #262421;
-  --c-bg-input: #1d1b18;
-  --c-bg-header: #1a1a1a;
-  --c-bg-zebra: #2b2926;
-  --c-bg-zebra2: #302e2b;
-  --c-bg-popup: #302e2b;
-  --c-bg-hover: #3d3a36;
+  --c-bg: #0f1210;
+  --c-bg-page: #0f1210;
+  --c-bg-box: #1a1e1b;
+  --c-bg-input: #151915;
+  --c-bg-header: #111614;
+  --c-bg-zebra: #1e2320;
+  --c-bg-zebra2: #232825;
+  --c-bg-popup: #1e2320;
+  --c-bg-hover: #2a302c;
 
-  --c-font: #bababa;
-  --c-font-dim: #999999;
-  --c-font-dimmer: #787672;
-  --c-font-clear: #dadada;
-  --c-font-link: #bf811d;
-  --c-font-page: #bababa;
+  --c-font: #b8c4b8;
+  --c-font-dim: #8a9a8a;
+  --c-font-dimmer: #5e6e5e;
+  --c-font-clear: #dce8dc;
+  --c-font-link: #4caf50;
+  --c-font-page: #b8c4b8;
 
-  --c-primary: #629924;
-  --c-primary-dim: #4a7a1a;
-  --c-accent: #d59120;
-  --c-good: #629924;
-  --c-bad: #cc3333;
-  --c-warn: #d59120;
+  --c-primary: #4caf50;
+  --c-primary-dim: #388e3c;
+  --c-accent: #66bb6a;
+  --c-good: #4caf50;
+  --c-bad: #ef5350;
+  --c-warn: #ffa726;
 
-  --c-border: #3d3a36;
-  --c-border-page: rgba(255,255,255,0.06);
+  --c-border: #2a352a;
+  --c-border-page: rgba(76, 175, 80, 0.08);
 
   --c-shade: rgba(0, 0, 0, 0.5);
   --c-shadow: rgba(0, 0, 0, 0.6);

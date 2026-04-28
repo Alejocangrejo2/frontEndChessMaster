@@ -213,9 +213,9 @@ export class StockfishEngine {
         this.searching = true;
 
         // Set position and search
-        // Use ONLY movetime — this is the most reliable way to limit Stockfish
+        // Use movetime + depth for proper strength scaling
         this.send(`position fen ${fen}`);
-        this.send(`go movetime ${config.moveTime}`);
+        this.send(`go depth ${config.depth} movetime ${config.moveTime}`);
 
         // Hard timeout: if no response in 5 seconds, force stop
         this.timeoutId = setTimeout(() => {

@@ -11,11 +11,12 @@ import { ChessEngine } from '../engine/ChessEngine';
 import {
   LichessPuzzle,
   fetchPuzzleBatch,
-  getRandomPuzzleFromCache,
+  getNextPuzzle,
+  markPuzzleSolved,
+  prefetchIfNeeded,
   getDifficultyForStreak,
   getDifficultyLabel,
   getThemeLabel,
-  FALLBACK_PUZZLES,
 } from '../engine/puzzleData';
 import type { Key, Color } from 'chessground/types';
 
@@ -61,13 +62,7 @@ export const PuzzlesPage: React.FC = () => {
   // Load a new puzzle when puzzles are available
   const loadNewPuzzle = useCallback(() => {
     const difficulty = getDifficultyForStreak(streak);
-    let puzzle = getRandomPuzzleFromCache(difficulty);
-
-    // If cache is empty, use fallback
-    if (!puzzle) {
-      const fallback = FALLBACK_PUZZLES[Math.floor(Math.random() * FALLBACK_PUZZLES.length)];
-      puzzle = fallback;
-    }
+    const puzzle = getNextPuzzle(difficulty);
 
     if (!puzzle) return;
 
@@ -137,6 +132,7 @@ export const PuzzlesPage: React.FC = () => {
         const newStreak = streak + 1;
         setStreak(newStreak);
         setTotalSolved(prev => prev + 1);
+        markPuzzleSolved(currentPuzzle.id);
         if (newStreak > bestStreak) {
           setBestStreak(newStreak);
           localStorage.setItem('puzzle_best_streak', newStreak.toString());
