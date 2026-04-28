@@ -24,6 +24,7 @@ export const LobbyPage: React.FC = () => {
   const [selectedTimeForAI, setSelectedTimeForAI] = useState<TimeControl>(
     TIME_CONTROLS.find(t => t.name === 'unlimited') || TIME_CONTROLS[9] as TimeControl
   );
+  const [joinCode, setJoinCode] = useState('');
 
   // Quick pairing: click a time control -> game with that exact time
   const handleQuickPlay = (tc: TimeControl) => {
@@ -49,6 +50,20 @@ export const LobbyPage: React.FC = () => {
       playerColor: color,
     }));
     window.location.href = '/game';
+  };
+
+  // Join game with code
+  const handleJoinWithCode = () => {
+    const code = joinCode.trim().toUpperCase();
+    if (code.length < 4) return;
+    
+    sessionStorage.setItem('gameConfig', JSON.stringify({
+      timeControl: { minutes: 10, increment: 0, name: '10+0', label: '10+0', category: 'rapid' },
+      isVsAI: false,
+      privateCode: code,
+      playerColor: 'black', // Joiner plays black
+    }));
+    window.location.href = `/game/${code}`;
   };
 
   // Time controls for the grid (exclude unlimited)
@@ -77,7 +92,7 @@ export const LobbyPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Right sidebar — play vs computer + friends */}
+      {/* Right sidebar — play vs computer + join code + friends */}
       <aside className="lobby-page__actions" id="lobby-actions">
         <button
           className="lobby-action lobby-action--accent"
@@ -91,6 +106,33 @@ export const LobbyPage: React.FC = () => {
           </span>
           <span className="lobby-action__text">Jugar contra el ordenador</span>
         </button>
+
+        {/* JOIN WITH CODE */}
+        <div className="lobby-join-code" id="lobby-join-code">
+          <div className="lobby-join-code__title">
+            🔗 Unirse con código
+          </div>
+          <div className="lobby-join-code__row">
+            <input
+              className="lobby-join-code__input"
+              type="text"
+              placeholder="Pegar código..."
+              value={joinCode}
+              onChange={e => setJoinCode(e.target.value.toUpperCase())}
+              onKeyDown={e => e.key === 'Enter' && handleJoinWithCode()}
+              maxLength={8}
+              id="join-code-input"
+            />
+            <button
+              className="lobby-join-code__btn"
+              onClick={handleJoinWithCode}
+              disabled={joinCode.trim().length < 4}
+              id="btn-join-code"
+            >
+              Unirse
+            </button>
+          </div>
+        </div>
 
         {/* Friends panel */}
         <FriendsPanel

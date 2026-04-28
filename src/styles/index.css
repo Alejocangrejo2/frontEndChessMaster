@@ -2417,62 +2417,26 @@ button:active, .btn:active {
   background: linear-gradient(135deg, #4caf50, #2196f3);
 }
 
-/* Puzzle Board */
-.puzzles-board {
-  display: flex;
-  flex-direction: column;
-  border: 3px solid var(--c-border);
+/* Puzzle Board — uses same ChessBoard/chessground as game */
+.puzzles-board-wrap {
+  width: 512px;
+  height: 512px;
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 4px 20px var(--c-shadow);
+  border: 3px solid var(--c-border);
 }
 
-.puzzles-board__row {
-  display: flex;
+.puzzles-board-wrap .board-container,
+.puzzles-board-wrap .cg-wrap {
+  width: 100% !important;
+  height: 100% !important;
 }
 
-.puzzles-board__square {
-  width: 64px;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-  position: relative;
-}
-
-.puzzles-board__square--light {
-  background-color: var(--c-board-light);
-}
-
-.puzzles-board__square--dark {
-  background-color: var(--c-board-dark);
-}
-
-.puzzles-board__square--selected {
-  background-color: var(--c-board-selected) !important;
-  box-shadow: inset 0 0 0 3px rgba(255, 255, 0, 0.5);
-}
-
-.puzzles-board__square:hover {
-  filter: brightness(1.1);
-}
-
-.puzzles-board__piece {
-  font-size: 44px;
-  line-height: 1;
-  user-select: none;
-  pointer-events: none;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-}
-
-.puzzles-board__piece--white {
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3));
-}
-
-.puzzles-board__piece--black {
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.4));
+.puzzles-info__hint {
+  font-size: 13px;
+  color: var(--c-font-dim);
+  font-style: italic;
 }
 
 /* Controls */
@@ -2501,16 +2465,96 @@ button:active, .btn:active {
 }
 
 /* ============================================
+   JOIN WITH CODE — Lobby section
+   ============================================ */
+
+.lobby-join-code {
+  background: var(--c-bg-box);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 1px 6px var(--c-shadow);
+  margin-top: 8px;
+}
+
+.lobby-join-code__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-font-clear);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lobby-join-code__row {
+  display: flex;
+  gap: 8px;
+}
+
+.lobby-join-code__input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  background: var(--c-bg-input);
+  color: var(--c-font);
+  font-size: 15px;
+  font-family: monospace;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.lobby-join-code__input:focus {
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 2px rgba(98, 153, 36, 0.2);
+}
+
+.lobby-join-code__input::placeholder {
+  letter-spacing: 0;
+  text-transform: none;
+  font-family: inherit;
+  color: var(--c-font-dimmer);
+}
+
+.lobby-join-code__btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: var(--c-primary);
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.lobby-join-code__btn:hover {
+  background: var(--c-primary-dim);
+  transform: translateY(-1px);
+}
+
+.lobby-join-code__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ============================================
    RESPONSIVE — Puzzle board mobile
    ============================================ */
 
 @media (max-width: 600px) {
-  .puzzles-board__square {
-    width: 44px;
-    height: 44px;
-  }
-  .puzzles-board__piece {
-    font-size: 30px;
+  .puzzles-board-wrap {
+    width: 100%;
+    max-width: 360px;
+    height: auto;
+    aspect-ratio: 1;
   }
   .puzzles-stats {
     gap: 10px;
@@ -2518,5 +2562,8 @@ button:active, .btn:active {
   }
   .puzzles-stats__value {
     font-size: 18px;
+  }
+  .lobby-join-code__row {
+    flex-direction: column;
   }
 }
