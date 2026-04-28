@@ -74,7 +74,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
         },
       },
       premovable: { enabled: true, showDests: true, castle: true },
-      draggable: { enabled: true, showGhost: true, distance: 3, autoDistance: true },
+      draggable: { enabled: true, showGhost: true, distance: 0 },
       selectable: { enabled: true },
       drawable: { enabled: true, visible: true },
     });
