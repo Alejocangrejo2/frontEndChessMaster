@@ -2244,3 +2244,279 @@ button:active:not(:disabled) {
   max-height: none;
   min-height: 400px;
 }
+
+/* ============================================
+   ANIMATIONS — Smooth transitions
+   ============================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.slide-up {
+  animation: slideUp 0.5s ease-out;
+}
+
+/* Apply slide-up to main pages */
+.app-main > * {
+  animation: slideUp 0.35s ease-out;
+}
+
+/* Glassmorphism on cards and panels */
+.lobby-card,
+.friends-panel,
+.login-modal,
+.puzzles-stats,
+.puzzles-info {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--c-border-page);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lobby-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--c-shadow);
+}
+
+/* Smooth button transitions */
+button, .btn, [class*="__btn"] {
+  transition: all 0.2s ease;
+}
+
+button:active, .btn:active {
+  transform: scale(0.97);
+}
+
+/* Smooth header shadow */
+.header {
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+/* ============================================
+   PUZZLES PAGE — Puzzle Rush styles
+   ============================================ */
+
+.puzzles-page {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.puzzles-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  background: var(--c-bg-box);
+  padding: 16px 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px var(--c-shadow);
+  width: 100%;
+}
+
+.puzzles-stats__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 80px;
+}
+
+.puzzles-stats__label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--c-font-dim);
+  font-weight: 600;
+}
+
+.puzzles-stats__value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--c-font-clear);
+}
+
+.puzzles-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  background: var(--c-bg-box);
+  padding: 12px 20px;
+  border-radius: 10px;
+  box-shadow: 0 1px 8px var(--c-shadow);
+  width: 100%;
+}
+
+.puzzles-info__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-font-clear);
+  margin: 0;
+}
+
+.puzzles-info__theme {
+  font-size: 13px;
+  color: var(--c-font-dim);
+  background: var(--c-bg-input);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.puzzles-feedback {
+  font-weight: 700;
+  font-size: 15px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  animation: pulse 0.5s ease;
+}
+
+.puzzles-feedback--correct {
+  color: #fff;
+  background: #4caf50;
+}
+
+.puzzles-feedback--wrong {
+  color: #fff;
+  background: #f44336;
+}
+
+.puzzles-feedback--solved {
+  color: #fff;
+  background: linear-gradient(135deg, #4caf50, #2196f3);
+}
+
+/* Puzzle Board */
+.puzzles-board {
+  display: flex;
+  flex-direction: column;
+  border: 3px solid var(--c-border);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px var(--c-shadow);
+}
+
+.puzzles-board__row {
+  display: flex;
+}
+
+.puzzles-board__square {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  position: relative;
+}
+
+.puzzles-board__square--light {
+  background-color: var(--c-board-light);
+}
+
+.puzzles-board__square--dark {
+  background-color: var(--c-board-dark);
+}
+
+.puzzles-board__square--selected {
+  background-color: var(--c-board-selected) !important;
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 0, 0.5);
+}
+
+.puzzles-board__square:hover {
+  filter: brightness(1.1);
+}
+
+.puzzles-board__piece {
+  font-size: 44px;
+  line-height: 1;
+  user-select: none;
+  pointer-events: none;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.puzzles-board__piece--white {
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3));
+}
+
+.puzzles-board__piece--black {
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.4));
+}
+
+/* Controls */
+.puzzles-controls {
+  display: flex;
+  gap: 12px;
+}
+
+.puzzles-controls__btn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--c-bg-input);
+  color: var(--c-font);
+  transition: all 0.2s ease;
+}
+
+.puzzles-controls__btn:hover {
+  background: var(--c-primary);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* ============================================
+   RESPONSIVE — Puzzle board mobile
+   ============================================ */
+
+@media (max-width: 600px) {
+  .puzzles-board__square {
+    width: 44px;
+    height: 44px;
+  }
+  .puzzles-board__piece {
+    font-size: 30px;
+  }
+  .puzzles-stats {
+    gap: 10px;
+    padding: 12px;
+  }
+  .puzzles-stats__value {
+    font-size: 18px;
+  }
+}

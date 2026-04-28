@@ -10,6 +10,7 @@ import { GamePage } from './pages/GamePage';
 import { HistoryPage } from './pages/HistoryPage';
 import { AnalysisPage } from './pages/AnalysisPage';
 import { FriendsPage } from './pages/FriendsPage';
+import { PuzzlesPage } from './pages/PuzzlesPage';
 import { LoginModal } from './components/LoginModal';
 
 export type BoardTheme = 'brown' | 'green' | 'blue' | 'gray';
@@ -93,12 +94,7 @@ const App: React.FC = () => {
             <Route path="/history" element={<HistoryPage username={username} />} />
             <Route path="/analysis" element={<AnalysisPage />} />
             <Route path="/friends" element={<FriendsPage username={username} />} />
-            <Route path="/puzzles" element={
-              <div className="placeholder-page">
-                <h2>Ejercicios</h2>
-                <p>Proximamente</p>
-              </div>
-            } />
+            <Route path="/puzzles" element={<PuzzlesPage />} />
             <Route path="*" element={
               <div className="placeholder-page">
                 <h2>Pagina no encontrada</h2>

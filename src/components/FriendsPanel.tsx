@@ -97,11 +97,34 @@ export const FriendsPanel: React.FC<FriendsPanelProps> = ({
 
   // No mock data — all data comes from real backend only
 
-  // Load data on mount
+  // Send heartbeat to mark user as online
+  const sendHeartbeat = useCallback(async () => {
+    if (!username) return;
+    try {
+      const token = localStorage.getItem('chess_token');
+      if (!token) return;
+      await fetch(`${API_URL}/api/friends/heartbeat`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+    } catch { /* silent */ }
+  }, [username]);
+
+  // Load data on mount + auto-refresh every 30s
   useEffect(() => {
     loadFriends();
     loadRequests();
-  }, [loadFriends, loadRequests]);
+    sendHeartbeat();
+
+    // Heartbeat + refresh every 30 seconds
+    const interval = setInterval(() => {
+      sendHeartbeat();
+      loadFriends();
+      loadRequests();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [loadFriends, loadRequests, sendHeartbeat]);
 
   // Search users (only real users from backend)
   const handleSearch = useCallback(async () => {
