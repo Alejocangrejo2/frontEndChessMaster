@@ -2674,3 +2674,47 @@ button:active, .btn:active {
     letter-spacing: 6px;
   }
 }
+
+/* ============================================
+   PUZZLES — Loading + info extras
+   ============================================ */
+
+.puzzles-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+}
+
+.puzzles-loading__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--c-border);
+  border-top-color: var(--c-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.puzzles-loading__text {
+  color: var(--c-font-dim);
+  font-size: 15px;
+}
+
+.puzzles-info__rating {
+  font-size: 14px;
+  color: var(--c-font-dim);
+  font-weight: 400;
+}
+
+.puzzles-info__plays {
+  display: block;
+  font-size: 12px;
+  color: var(--c-font-dimmer);
+  margin-top: 2px;
+}
