@@ -95,6 +95,33 @@ const App: React.FC = () => {
     document.documentElement.setAttribute('data-board', boardTheme);
   }, [theme, boardTheme]);
 
+  // Auto-logout: clear session when tab/window is closed
+  // Uses sessionStorage flag to detect fresh sessions
+  React.useEffect(() => {
+    const sessionActive = sessionStorage.getItem('chess_session_active');
+
+    if (!sessionActive && username) {
+      // Session expired (tab was closed and reopened) — force logout
+      localStorage.removeItem('chess_username');
+      localStorage.removeItem('chess_token');
+      setUsername(null);
+      return;
+    }
+
+    if (username) {
+      // Mark session as active
+      sessionStorage.setItem('chess_session_active', 'true');
+    }
+
+    const handleBeforeUnload = () => {
+      // Don't clear on reload — only on tab close
+      // sessionStorage auto-clears on tab close, so next load will trigger logout
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [username]);
+
   // NOT logged in -> show landing page
   if (!username) {
     return (

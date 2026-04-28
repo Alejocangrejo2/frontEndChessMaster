@@ -1,12 +1,47 @@
 // ============================================
-// LandingPage.tsx -- Pantalla de entrada de ChessMaster
+// LandingPage.tsx -- Pantalla premium de ChessMaster
 // ============================================
-// Se muestra cuando el usuario NO esta loggeado.
-// Ofrece: iniciar sesion / registrarse.
+// Piezas flotantes con profundidad, parallax con mouse,
+// gradientes elegantes, animacion del logo.
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+
+// Chess piece unicode characters
+const PIECES = {
+  // White pieces
+  wK: '\u2654', wQ: '\u2655', wR: '\u2656', wB: '\u2657', wN: '\u2658', wP: '\u2659',
+  // Black pieces
+  bK: '\u265A', bQ: '\u265B', bR: '\u265C', bB: '\u265D', bN: '\u265E', bP: '\u265F',
+};
+
+// 20 floating pieces with varied types, sizes, positions, speeds, colors
+const FLOATING_PIECES = [
+  // Near (large, less blur, faster)
+  { piece: PIECES.wK, x: 8,  y: 12, size: 72, speed: 14, color: 'rgba(255,255,255,0.08)', blur: 0, delay: 0 },
+  { piece: PIECES.bQ, x: 85, y: 18, size: 68, speed: 16, color: 'rgba(100,100,100,0.10)', blur: 0, delay: -2 },
+  { piece: PIECES.wN, x: 45, y: 75, size: 64, speed: 18, color: 'rgba(255,255,255,0.07)', blur: 0, delay: -5 },
+  { piece: PIECES.bR, x: 72, y: 65, size: 60, speed: 15, color: 'rgba(80,80,80,0.09)',    blur: 0, delay: -8 },
+  // Mid-distance (medium)
+  { piece: PIECES.wR, x: 20, y: 55, size: 50, speed: 20, color: 'rgba(139,90,43,0.08)',   blur: 1, delay: -3 },
+  { piece: PIECES.bN, x: 60, y: 25, size: 48, speed: 22, color: 'rgba(60,60,60,0.10)',    blur: 1, delay: -7 },
+  { piece: PIECES.wB, x: 35, y: 40, size: 52, speed: 19, color: 'rgba(200,200,200,0.06)', blur: 1, delay: -1 },
+  { piece: PIECES.bP, x: 90, y: 50, size: 40, speed: 24, color: 'rgba(100,100,100,0.08)', blur: 1, delay: -4 },
+  { piece: PIECES.wQ, x: 15, y: 85, size: 56, speed: 17, color: 'rgba(255,255,255,0.07)', blur: 1, delay: -9 },
+  { piece: PIECES.bK, x: 55, y: 10, size: 54, speed: 21, color: 'rgba(50,50,50,0.10)',    blur: 1, delay: -6 },
+  // Far (small, more blur, slower)
+  { piece: PIECES.wP, x: 5,  y: 40, size: 32, speed: 28, color: 'rgba(139,90,43,0.06)',   blur: 2, delay: -2 },
+  { piece: PIECES.bB, x: 30, y: 90, size: 36, speed: 26, color: 'rgba(80,80,80,0.07)',    blur: 2, delay: -5 },
+  { piece: PIECES.wP, x: 75, y: 35, size: 30, speed: 30, color: 'rgba(200,200,200,0.05)', blur: 2, delay: -8 },
+  { piece: PIECES.bP, x: 50, y: 55, size: 34, speed: 25, color: 'rgba(100,100,100,0.06)', blur: 2, delay: -1 },
+  { piece: PIECES.wN, x: 92, y: 80, size: 38, speed: 27, color: 'rgba(139,90,43,0.07)',   blur: 2, delay: -4 },
+  { piece: PIECES.bR, x: 12, y: 70, size: 28, speed: 32, color: 'rgba(60,60,60,0.06)',    blur: 3, delay: -7 },
+  { piece: PIECES.wB, x: 68, y: 92, size: 30, speed: 29, color: 'rgba(200,200,200,0.05)', blur: 3, delay: -3 },
+  { piece: PIECES.bQ, x: 40, y: 5,  size: 26, speed: 34, color: 'rgba(80,80,80,0.05)',    blur: 3, delay: -6 },
+  { piece: PIECES.wR, x: 82, y: 45, size: 24, speed: 36, color: 'rgba(139,90,43,0.04)',   blur: 3, delay: -9 },
+  { piece: PIECES.bN, x: 25, y: 20, size: 28, speed: 31, color: 'rgba(60,60,60,0.05)',    blur: 3, delay: -1 },
+];
 
 interface LandingPageProps {
   onLogin: (username: string, token: string) => void;
@@ -19,8 +54,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const bgRef = useRef<HTMLDivElement>(null);
 
   const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+
+  // Parallax effect on mouse move
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!bgRef.current) return;
+    const x = (e.clientX / window.innerWidth - 0.5) * 20;
+    const y = (e.clientY / window.innerHeight - 0.5) * 20;
+    bgRef.current.style.transform = `translate(${x}px, ${y}px)`;
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [handleMouseMove]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,27 +119,45 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
     setIsLoading(false);
   };
 
+  // Shared background with pieces
+  const renderBackground = () => (
+    <div className="landing__bg" ref={bgRef}>
+      <div className="landing__gradient"></div>
+      <div className="landing__grid"></div>
+      <div className="landing__pieces">
+        {FLOATING_PIECES.map((p, i) => (
+          <span
+            key={i}
+            className="landing__piece"
+            style={{
+              left: `${p.x}%`,
+              top: `${p.y}%`,
+              fontSize: `${p.size}px`,
+              color: p.color,
+              animationDuration: `${p.speed}s`,
+              animationDelay: `${p.delay}s`,
+              filter: p.blur > 0 ? `blur(${p.blur}px)` : 'none',
+              textShadow: p.blur === 0 ? '0 4px 12px rgba(0,0,0,0.2)' : 'none',
+            }}
+          >
+            {p.piece}
+          </span>
+        ))}
+      </div>
+      {/* Radial glow spots */}
+      <div className="landing__glow landing__glow--1"></div>
+      <div className="landing__glow landing__glow--2"></div>
+    </div>
+  );
+
   if (mode === 'landing') {
     return (
       <div className="landing" id="landing-page">
-        <div className="landing__bg">
-          <div className="landing__grid"></div>
-          {/* Floating chess piece silhouettes */}
-          <div className="landing__pieces">
-            <span className="landing__piece landing__piece--1">&#9814;</span>
-            <span className="landing__piece landing__piece--2">&#9816;</span>
-            <span className="landing__piece landing__piece--3">&#9815;</span>
-            <span className="landing__piece landing__piece--4">&#9813;</span>
-            <span className="landing__piece landing__piece--5">&#9817;</span>
-            <span className="landing__piece landing__piece--6">&#9814;</span>
-            <span className="landing__piece landing__piece--7">&#9816;</span>
-            <span className="landing__piece landing__piece--8">&#9812;</span>
-          </div>
-        </div>
+        {renderBackground()}
         <div className="landing__content">
           <div className="landing__hero">
-            <div className="landing__icon">
-              <svg viewBox="0 0 64 64" width="72" height="72" fill="none">
+            <div className="landing__icon landing__icon--animated">
+              <svg viewBox="0 0 64 64" width="80" height="80" fill="none">
                 <rect x="8" y="48" width="48" height="6" rx="3" fill="currentColor" opacity="0.3"/>
                 <rect x="16" y="42" width="32" height="8" rx="2" fill="currentColor" opacity="0.5"/>
                 <path d="M24 42V28c0-2 2-4 4-4h8c2 0 4 2 4 4v14" fill="currentColor" opacity="0.7"/>
@@ -98,32 +165,49 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                 <circle cx="32" cy="18" r="4" fill="var(--c-bg)"/>
               </svg>
             </div>
-            <h1 className="landing__title">ChessMaster</h1>
-            <p className="landing__subtitle">Tu plataforma de ajedrez online</p>
+            <h1 className="landing__title">
+              <span className="landing__title-chess">Chess</span><span className="landing__title-master">Master</span>
+            </h1>
+            <p className="landing__subtitle">
+              Domina el tablero. Desafia tu mente.<br/>
+              Conviertete en una leyenda.
+            </p>
             <div className="landing__features">
               <div className="landing__feature">
                 <span className="landing__feature-icon">
-                  <svg viewBox="0 0 20 20" width="20" height="20" fill="currentColor"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z"/></svg>
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </span>
-                <span>Partidas en vivo</span>
+                <div>
+                  <strong>Partidas en vivo</strong>
+                  <small>Juega contra jugadores reales en tiempo real</small>
+                </div>
               </div>
               <div className="landing__feature">
                 <span className="landing__feature-icon">
-                  <svg viewBox="0 0 20 20" width="20" height="20" fill="currentColor"><path d="M10 2L3 7v11h14V7l-7-5zm0 2.5L15 8v8H5V8l5-3.5z"/></svg>
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
                 </span>
-                <span>Puzzles de Lichess</span>
+                <div>
+                  <strong>Puzzles inteligentes</strong>
+                  <small>Mejora tu tactica con puzzles adaptados a tu nivel</small>
+                </div>
               </div>
               <div className="landing__feature">
                 <span className="landing__feature-icon">
-                  <svg viewBox="0 0 20 20" width="20" height="20" fill="currentColor"><path d="M10 2a4 4 0 00-4 4c0 1.5.8 2.8 2 3.5V18h4V9.5c1.2-.7 2-2 2-3.5a4 4 0 00-4-4z"/></svg>
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
                 </span>
-                <span>Analisis con IA</span>
+                <div>
+                  <strong>Analisis con Stockfish</strong>
+                  <small>Analiza tus partidas con el motor de ultima generacion</small>
+                </div>
               </div>
               <div className="landing__feature">
                 <span className="landing__feature-icon">
-                  <svg viewBox="0 0 20 20" width="20" height="20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6c0 2.2 1.2 4.2 3 5.2V16a1 1 0 001 1h4a1 1 0 001-1v-2.8c1.8-1 3-3 3-5.2a6 6 0 00-6-6z"/></svg>
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
                 </span>
-                <span>Sistema de amigos</span>
+                <div>
+                  <strong>Sistema de amigos</strong>
+                  <small>Conecta, desafia y compite con tus amigos</small>
+                </div>
               </div>
             </div>
           </div>
@@ -134,6 +218,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
               onClick={() => setMode('login')}
               id="btn-login"
             >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
               Iniciar sesion
             </button>
             <button
@@ -141,6 +226,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
               onClick={() => setMode('register')}
               id="btn-register"
             >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
               Crear cuenta
             </button>
           </div>
@@ -152,9 +238,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
   // Login / Register form
   return (
     <div className="landing" id="landing-page">
-      <div className="landing__bg">
-        <div className="landing__grid"></div>
-      </div>
+      {renderBackground()}
       <div className="landing__content">
         <div className="landing__form-card">
           <h2 className="landing__form-title">

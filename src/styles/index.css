@@ -2776,7 +2776,7 @@ button:active, .btn:active {
 }
 
 /* ============================================
-   LANDING PAGE
+   LANDING PAGE — Premium
    ============================================ */
 
 .landing {
@@ -2786,14 +2786,24 @@ button:active, .btn:active {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--c-bg) 0%, var(--c-bg-box) 100%);
+  background: linear-gradient(145deg, #0a0e14 0%, #111a22 40%, #0d1a12 100%);
 }
 
 .landing__bg {
   position: absolute;
-  inset: 0;
+  inset: -30px;
   overflow: hidden;
   pointer-events: none;
+  transition: transform 0.15s ease-out;
+  will-change: transform;
+}
+
+.landing__gradient {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(76, 175, 80, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 30%, rgba(76, 175, 80, 0.04) 0%, transparent 50%);
 }
 
 .landing__grid {
@@ -2802,11 +2812,10 @@ button:active, .btn:active {
   width: 200%;
   height: 200%;
   background-image:
-    linear-gradient(var(--c-border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--c-border) 1px, transparent 1px);
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
   background-size: 60px 60px;
-  opacity: 0.3;
-  animation: gridFloat 20s linear infinite;
+  animation: gridFloat 25s linear infinite;
 }
 
 @keyframes gridFloat {
@@ -2814,10 +2823,59 @@ button:active, .btn:active {
   100% { transform: translate(60px, 60px); }
 }
 
+/* Radial glow spots */
+.landing__glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.landing__glow--1 {
+  width: 500px; height: 500px;
+  left: -100px; top: -100px;
+  background: radial-gradient(circle, rgba(76, 175, 80, 0.08) 0%, transparent 70%);
+  animation: glowPulse 8s ease-in-out infinite;
+}
+
+.landing__glow--2 {
+  width: 400px; height: 400px;
+  right: -80px; bottom: -80px;
+  background: radial-gradient(circle, rgba(76, 175, 80, 0.06) 0%, transparent 70%);
+  animation: glowPulse 10s ease-in-out infinite reverse;
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+/* Floating pieces — styles are inline, this is the base class */
+.landing__pieces {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.landing__piece {
+  position: absolute;
+  animation: pieceFloat 15s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes pieceFloat {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  20%  { transform: translate(15px, -25px) rotate(3deg); }
+  40%  { transform: translate(-10px, -45px) rotate(-2deg); }
+  60%  { transform: translate(20px, -35px) rotate(4deg); }
+  80%  { transform: translate(-5px, -15px) rotate(-1deg); }
+}
+
+/* Content */
 .landing__content {
   position: relative;
-  z-index: 1;
-  max-width: 480px;
+  z-index: 2;
+  max-width: 520px;
   width: 100%;
   padding: 40px 24px;
   text-align: center;
@@ -2830,29 +2888,46 @@ button:active, .btn:active {
 }
 
 .landing__hero {
-  margin-bottom: 48px;
+  margin-bottom: 40px;
 }
 
 .landing__icon {
-  color: var(--c-primary);
+  color: #4caf50;
   margin-bottom: 16px;
-  filter: drop-shadow(0 4px 12px rgba(var(--c-primary-rgb, 80, 120, 200), 0.3));
+  filter: drop-shadow(0 4px 16px rgba(76, 175, 80, 0.4));
+}
+
+.landing__icon--animated {
+  animation: logoFloat 3s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 
 .landing__title {
-  font-size: 48px;
+  font-size: 52px;
   font-weight: 800;
   letter-spacing: -1.5px;
-  color: var(--c-font-clear);
-  margin: 0 0 8px;
+  margin: 0 0 12px;
   line-height: 1.1;
 }
 
+.landing__title-chess {
+  color: #fff;
+}
+
+.landing__title-master {
+  color: #4caf50;
+}
+
 .landing__subtitle {
-  font-size: 18px;
-  color: var(--c-font-dim);
-  margin: 0 0 32px;
+  font-size: 16px;
+  color: rgba(255,255,255,0.5);
+  margin: 0 0 36px;
   font-weight: 400;
+  line-height: 1.6;
 }
 
 .landing__features {
@@ -2864,71 +2939,92 @@ button:active, .btn:active {
 
 .landing__feature {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-radius: 10px;
-  background: var(--c-bg-box);
-  border: 1px solid var(--c-border);
-  font-size: 14px;
-  color: var(--c-font);
-  font-weight: 500;
-  transition: border-color 0.2s, transform 0.2s;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.8);
+  font-size: 13px;
+  transition: border-color 0.25s, transform 0.25s, background 0.25s;
 }
 
 .landing__feature:hover {
-  border-color: var(--c-primary);
+  border-color: rgba(76, 175, 80, 0.3);
+  background: rgba(76, 175, 80, 0.05);
   transform: translateY(-2px);
 }
 
 .landing__feature-icon {
-  color: var(--c-primary);
+  color: #4caf50;
   flex-shrink: 0;
   display: flex;
+  margin-top: 2px;
+}
+
+.landing__feature strong {
+  display: block;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.landing__feature small {
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+  line-height: 1.3;
 }
 
 .landing__actions {
   display: flex;
-  flex-direction: column;
   gap: 12px;
 }
 
 .landing__btn {
+  flex: 1;
   padding: 14px 24px;
   border-radius: 10px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   border: none;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .landing__btn--primary {
-  background: var(--c-primary);
+  background: #4caf50;
   color: #fff;
-  box-shadow: 0 4px 12px rgba(var(--c-primary-rgb, 80, 120, 200), 0.3);
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
 }
 
 .landing__btn--primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(var(--c-primary-rgb, 80, 120, 200), 0.4);
+  box-shadow: 0 8px 24px rgba(76, 175, 80, 0.4);
+  background: #55c059;
 }
 
 .landing__btn--primary:active { transform: translateY(0); }
 
 .landing__btn--secondary {
-  background: var(--c-bg-box);
-  color: var(--c-font);
-  border: 1px solid var(--c-border);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.8);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .landing__btn--secondary:hover {
-  border-color: var(--c-primary);
-  color: var(--c-primary);
+  border-color: #4caf50;
+  color: #4caf50;
+  background: rgba(76, 175, 80, 0.05);
 }
 
-.landing__btn--full { width: 100%; }
+.landing__btn--full { width: 100%; flex: unset; }
 
 .landing__btn:disabled {
   opacity: 0.6;
@@ -2938,18 +3034,19 @@ button:active, .btn:active {
 
 /* Form card */
 .landing__form-card {
-  background: var(--c-bg-box);
-  border: 1px solid var(--c-border);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px;
   padding: 36px 28px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(12px);
   animation: landingFadeIn 0.5s ease-out;
 }
 
 .landing__form-title {
   font-size: 24px;
   font-weight: 700;
-  color: var(--c-font-clear);
+  color: #fff;
   margin: 0 0 24px;
 }
 
@@ -2965,34 +3062,36 @@ button:active, .btn:active {
 
 .landing__label {
   display: block;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--c-font-dim);
+  color: rgba(255,255,255,0.4);
   margin-bottom: 6px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
 }
 
 .landing__input {
   width: 100%;
   padding: 12px 14px;
   border-radius: 8px;
-  border: 1px solid var(--c-border);
-  background: var(--c-bg);
-  color: var(--c-font);
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: #fff;
   font-size: 15px;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
   box-sizing: border-box;
 }
 
+.landing__input::placeholder { color: rgba(255,255,255,0.2); }
+
 .landing__input:focus {
-  border-color: var(--c-primary);
+  border-color: #4caf50;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(var(--c-primary-rgb, 80, 120, 200), 0.15);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
 }
 
 .landing__error {
-  color: var(--c-bad);
+  color: #ef5350;
   font-size: 13px;
   padding: 8px 12px;
   background: rgba(229, 57, 53, 0.1);
@@ -3003,7 +3102,7 @@ button:active, .btn:active {
 .landing__switch {
   background: none;
   border: none;
-  color: var(--c-primary);
+  color: #4caf50;
   font-size: 14px;
   cursor: pointer;
   margin-top: 16px;
@@ -3016,7 +3115,7 @@ button:active, .btn:active {
 .landing__back {
   background: none;
   border: none;
-  color: var(--c-font-dimmer);
+  color: rgba(255,255,255,0.3);
   font-size: 13px;
   cursor: pointer;
   margin-top: 8px;
@@ -3024,35 +3123,7 @@ button:active, .btn:active {
   transition: color 0.2s;
 }
 
-.landing__back:hover { color: var(--c-font); }
-
-/* Board quality indicator overlay */
-.board-move-indicator {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  z-index: 10;
-  pointer-events: none;
-  animation: indicatorPop 0.3s ease-out;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-}
-
-.board-move-indicator--brilliant { background: #26c6da; }
-.board-move-indicator--great { background: #42a5f5; }
-.board-move-indicator--best { background: #66bb6a; }
-.board-move-indicator--good { background: #a5d6a7; }
-.board-move-indicator--inaccuracy { background: #fdd835; }
-.board-move-indicator--mistake { background: #ff9800; }
-.board-move-indicator--blunder { background: #e53935; }
-
-@keyframes indicatorPop {
-  0% { transform: scale(0); opacity: 0; }
-  70% { transform: scale(1.3); }
-  100% { transform: scale(1); opacity: 1; }
-}
+.landing__back:hover { color: rgba(255,255,255,0.6); }
 
 /* Responsive landing */
 @media (max-width: 500px) {
@@ -3060,49 +3131,7 @@ button:active, .btn:active {
   .landing__features { grid-template-columns: 1fr; }
   .landing__form-card { padding: 24px 18px; }
   .landing__content { padding: 24px 16px; }
-}
-
-/* ============================================
-   FLOATING CHESS PIECES (Landing background)
-   ============================================ */
-
-.landing__pieces {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.landing__piece {
-  position: absolute;
-  font-size: 48px;
-  opacity: 0.06;
-  color: var(--c-font);
-  animation: pieceFloat 15s ease-in-out infinite;
-}
-
-.landing__piece--1 { left: 5%;  top: 10%; animation-duration: 18s; animation-delay: 0s;   font-size: 56px; }
-.landing__piece--2 { left: 20%; top: 60%; animation-duration: 22s; animation-delay: -3s;  font-size: 40px; }
-.landing__piece--3 { left: 40%; top: 20%; animation-duration: 16s; animation-delay: -6s;  font-size: 64px; }
-.landing__piece--4 { left: 60%; top: 70%; animation-duration: 20s; animation-delay: -9s;  font-size: 52px; }
-.landing__piece--5 { left: 80%; top: 15%; animation-duration: 14s; animation-delay: -2s;  font-size: 36px; }
-.landing__piece--6 { left: 10%; top: 80%; animation-duration: 24s; animation-delay: -5s;  font-size: 44px; }
-.landing__piece--7 { left: 75%; top: 45%; animation-duration: 19s; animation-delay: -8s;  font-size: 48px; }
-.landing__piece--8 { left: 50%; top: 85%; animation-duration: 17s; animation-delay: -4s;  font-size: 60px; }
-
-@keyframes pieceFloat {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  25% {
-    transform: translate(20px, -30px) rotate(5deg);
-  }
-  50% {
-    transform: translate(-15px, -50px) rotate(-3deg);
-  }
-  75% {
-    transform: translate(10px, -20px) rotate(4deg);
-  }
+  .landing__actions { flex-direction: column; }
 }
 
 /* ============================================
