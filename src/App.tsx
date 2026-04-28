@@ -11,17 +11,44 @@ import { HistoryPage } from './pages/HistoryPage';
 import { AnalysisPage } from './pages/AnalysisPage';
 import { FriendsPage } from './pages/FriendsPage';
 import { PuzzlesPage } from './pages/PuzzlesPage';
+import { MultiplayerGamePage } from './pages/MultiplayerGamePage';
 import { LoginModal } from './components/LoginModal';
 
 export type BoardTheme = 'brown' | 'green' | 'blue' | 'gray';
 
 /**
- * Wrapper that forces GamePage to fully remount when navigating
- * from the lobby. Without this, React reuses the component and
- * the useChessEngine hook never reads the new sessionStorage config.
+ * Wrapper that detects if this is a multiplayer game (has ?room= param)
+ * and routes to the correct game page.
  */
 const GamePageWrapper: React.FC<{ username: string | null }> = ({ username }) => {
   const location = useLocation();
+
+  // Check for multiplayer room
+  const searchParams = new URLSearchParams(location.search);
+  const roomCode = searchParams.get('room');
+
+  // Also check sessionStorage for roomCode
+  const config = (() => {
+    try {
+      const stored = sessionStorage.getItem('gameConfig');
+      return stored ? JSON.parse(stored) : null;
+    } catch { return null; }
+  })();
+
+  const effectiveRoomCode = roomCode || config?.roomCode;
+
+  if (effectiveRoomCode && username) {
+    const myColor = config?.playerColor || 'white';
+    return (
+      <MultiplayerGamePage
+        key={effectiveRoomCode}
+        roomCode={effectiveRoomCode}
+        username={username}
+        myColor={myColor}
+      />
+    );
+  }
+
   return <GamePage key={location.key} username={username} />;
 };
 
