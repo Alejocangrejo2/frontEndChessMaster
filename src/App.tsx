@@ -68,12 +68,14 @@ const App: React.FC = () => {
 
   const handleLogin = useCallback((name: string) => {
     localStorage.setItem('chess_username', name);
+    sessionStorage.setItem('chess_session_active', 'true');
     setUsername(name);
   }, []);
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem('chess_username');
     localStorage.removeItem('chess_token');
+    sessionStorage.removeItem('chess_session_active');
     setUsername(null);
   }, []);
 
@@ -95,32 +97,21 @@ const App: React.FC = () => {
     document.documentElement.setAttribute('data-board', boardTheme);
   }, [theme, boardTheme]);
 
-  // Auto-logout: clear session when tab/window is closed
-  // Uses sessionStorage flag to detect fresh sessions
+  // Auto-logout: if tab was closed and reopened, sessionStorage is gone
+  // so we detect a stale localStorage username and clear it
   React.useEffect(() => {
+    const storedUser = localStorage.getItem('chess_username');
     const sessionActive = sessionStorage.getItem('chess_session_active');
 
-    if (!sessionActive && username) {
-      // Session expired (tab was closed and reopened) — force logout
+    if (storedUser && !sessionActive) {
+      // Tab was closed — session expired
       localStorage.removeItem('chess_username');
       localStorage.removeItem('chess_token');
       setUsername(null);
-      return;
     }
-
-    if (username) {
-      // Mark session as active
-      sessionStorage.setItem('chess_session_active', 'true');
-    }
-
-    const handleBeforeUnload = () => {
-      // Don't clear on reload — only on tab close
-      // sessionStorage auto-clears on tab close, so next load will trigger logout
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [username]);
+    // Only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // NOT logged in -> show landing page
   if (!username) {
