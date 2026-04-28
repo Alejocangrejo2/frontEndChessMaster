@@ -130,16 +130,6 @@ a:hover { text-decoration: underline; }
 ::-webkit-scrollbar-track { background: var(--c-bg); }
 ::-webkit-scrollbar-thumb { background: var(--c-bg-hover); border-radius: 3px; }
 
-/* Chessground: make pieces fill entire square for easier grabbing */
-cg-board piece {
-  padding: 4%;
-  margin: -4%;
-  cursor: grab;
-}
-cg-board piece.dragging {
-  cursor: grabbing;
-}
-
 /* ============================================
    HEADER — Navbar idéntica a Lichess
    ============================================ */
