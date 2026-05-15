@@ -8,7 +8,6 @@ import { TIME_CONTROLS, type TimeControl, type AIDifficulty } from '../hooks/use
 import { useMultiplayerGame } from '../hooks/useMultiplayerGame';
 import { FriendsPanel } from '../components/FriendsPanel';
 import { FloatingPieces } from '../components/FloatingPieces';
-import { ChallengeNotification, sendChallengeEvent } from '../components/ChallengeNotification';
 import type { Color } from 'chessground/types';
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -339,8 +338,6 @@ export const LobbyPage: React.FC = () => {
           </div>
         </div>
       )}
-      {/* Challenge notification overlay */}
-      <ChallengeNotification username={localStorage.getItem('chess_username')} />
     </div>
   );
 };

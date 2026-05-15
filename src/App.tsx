@@ -13,6 +13,7 @@ import { AnalysisPage } from './pages/AnalysisPage';
 import { FriendsPage } from './pages/FriendsPage';
 import { PuzzlesPage } from './pages/PuzzlesPage';
 import { MultiplayerGamePage } from './pages/MultiplayerGamePage';
+import { ChallengeNotification } from './components/ChallengeNotification';
 
 export type BoardTheme = 'brown' | 'green' | 'blue' | 'gray';
 
@@ -153,6 +154,9 @@ const App: React.FC = () => {
             } />
           </Routes>
         </main>
+
+        {/* Global challenge notifications — visible on all pages */}
+        <ChallengeNotification username={username} />
       </div>
     </BrowserRouter>
   );
