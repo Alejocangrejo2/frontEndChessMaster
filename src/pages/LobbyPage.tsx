@@ -3,7 +3,7 @@
 // ============================================
 // Emparejamiento rapido (vs IA) + Crear partida privada + Unirse con codigo
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { TIME_CONTROLS, type TimeControl, type AIDifficulty } from '../hooks/useChessEngine';
 import { useMultiplayerGame } from '../hooks/useMultiplayerGame';
 import { FriendsPanel } from '../components/FriendsPanel';
@@ -31,6 +31,36 @@ export const LobbyPage: React.FC = () => {
   const multiplayer = useMultiplayerGame();
   const [waitingCode, setWaitingCode] = useState<string | null>(null);
   const [isWaiting, setIsWaiting] = useState(false);
+  const [waitingCountdown, setWaitingCountdown] = useState(70);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // 70-second countdown for waiting room
+  useEffect(() => {
+    if (isWaiting) {
+      setWaitingCountdown(70);
+      countdownRef.current = setInterval(() => {
+        setWaitingCountdown(prev => {
+          if (prev <= 1) {
+            // Expired — cancel waiting
+            setIsWaiting(false);
+            setWaitingCode(null);
+            multiplayer.stopPolling();
+            if (countdownRef.current) clearInterval(countdownRef.current);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else {
+      if (countdownRef.current) {
+        clearInterval(countdownRef.current);
+        countdownRef.current = null;
+      }
+    }
+    return () => {
+      if (countdownRef.current) clearInterval(countdownRef.current);
+    };
+  }, [isWaiting, multiplayer]);
 
   // Quick pairing: click a time control -> game with AI
   const handleQuickPlay = (tc: TimeControl) => {
@@ -116,6 +146,7 @@ export const LobbyPage: React.FC = () => {
             <h2 className="lobby-waiting__title">Esperando oponente...</h2>
             <p className="lobby-waiting__subtitle">Comparte este codigo con tu amigo</p>
             <div className="lobby-waiting__code">{waitingCode}</div>
+            <p className="lobby-waiting__timer">Expira en {waitingCountdown}s</p>
             <p className="lobby-waiting__hint">O comparte este link:</p>
             <div className="lobby-waiting__link">
               {window.location.origin}/game?room={waitingCode}
