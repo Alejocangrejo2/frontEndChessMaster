@@ -30,13 +30,13 @@ function getLevelConfig(level: number): {
 } {
   switch (level) {
     case 1: return { skillLevel: 0,  depth: 1,  moveTime: 100,  elo: 800,  limitStrength: true };
-    case 2: return { skillLevel: 3,  depth: 3,  moveTime: 300,  elo: 1000, limitStrength: true };
-    case 3: return { skillLevel: 5,  depth: 5,  moveTime: 500,  elo: 1200, limitStrength: true };
-    case 4: return { skillLevel: 8,  depth: 8,  moveTime: 700,  elo: 1400, limitStrength: true };
-    case 5: return { skillLevel: 12, depth: 10, moveTime: 1000, elo: 1700, limitStrength: true };
-    case 6: return { skillLevel: 16, depth: 14, moveTime: 1500, elo: 0,    limitStrength: false };
-    case 7: return { skillLevel: 18, depth: 18, moveTime: 2000, elo: 0,    limitStrength: false };
-    case 8: return { skillLevel: 20, depth: 20, moveTime: 3000, elo: 0,    limitStrength: false };
+    case 2: return { skillLevel: 3,  depth: 3,  moveTime: 200,  elo: 1000, limitStrength: true };
+    case 3: return { skillLevel: 5,  depth: 5,  moveTime: 400,  elo: 1200, limitStrength: true };
+    case 4: return { skillLevel: 8,  depth: 7,  moveTime: 600,  elo: 1400, limitStrength: true };
+    case 5: return { skillLevel: 10, depth: 9,  moveTime: 800,  elo: 1600, limitStrength: true };
+    case 6: return { skillLevel: 13, depth: 12, moveTime: 1200, elo: 0,    limitStrength: false };
+    case 7: return { skillLevel: 16, depth: 15, moveTime: 2000, elo: 0,    limitStrength: false };
+    case 8: return { skillLevel: 20, depth: 25, moveTime: 4000, elo: 0,    limitStrength: false };
     default: return { skillLevel: 0,  depth: 1,  moveTime: 100,  elo: 800,  limitStrength: true };
   }
 }
@@ -87,7 +87,7 @@ export class StockfishEngine {
     if (line === 'uciok') {
       this.initialized = true;
       // Set hash and threads for better performance
-      this.send('setoption name Hash value 32');
+      this.send('setoption name Hash value 64');
       this.send('setoption name Threads value 1');
       // Apply initial level config
       this.applyLevel(this.level);
