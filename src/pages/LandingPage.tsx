@@ -65,6 +65,14 @@ interface LandingPageProps {
   onLogin: (username: string, token: string) => void;
 }
 
+const PawnIcon: React.FC<{fill: string}> = ({fill}) => (
+  <svg viewBox="0 0 24 24" width="22" height="22">
+    <circle cx="12" cy="7" r="3.5" fill={fill}/>
+    <path d="M8.5 11.5C8.5 11.5 9.5 10 12 10s3.5 1.5 3.5 1.5L16.5 17h-9L8.5 11.5z" fill={fill}/>
+    <rect x="6" y="17" width="12" height="3" rx="1.5" fill={fill}/>
+  </svg>
+);
+
 export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
   const [mode, setMode] = useState<'landing' | 'login' | 'register'>('landing');
   const [username, setUsername] = useState('');
@@ -186,7 +194,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
       <div className="landing" id="landing-page">
         {renderBackground()}
         <button className="landing__theme-toggle" onClick={toggleTheme} title={isDark ? 'Modo claro' : 'Modo oscuro'}>
-          {isDark ? '\u2659\uFE0F' : '\u265F\uFE0F'}
+          <PawnIcon fill={isDark ? '#ffffff' : '#1a1a1a'} />
         </button>
         <div className="landing__content">
           <div className="landing__hero">
@@ -274,7 +282,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
     <div className="landing" id="landing-page">
       {renderBackground()}
       <button className="landing__theme-toggle" onClick={toggleTheme} title={isDark ? 'Modo claro' : 'Modo oscuro'}>
-        {isDark ? '\u2659\uFE0F' : '\u265F\uFE0F'}
+        <PawnIcon fill={isDark ? '#ffffff' : '#1a1a1a'} />
       </button>
       <div className="landing__content">
         <div className="landing__form-card">
