@@ -123,7 +123,7 @@ export const LobbyPage: React.FC = () => {
       sessionStorage.setItem('gameConfig', JSON.stringify({
         timeControl: { minutes: 10, increment: 0, name: '10+0', label: '10+0', category: 'rapid' },
         isVsAI: false,
-        playerColor: 'white', // Creator is always white
+        playerColor: multiplayer.roomState.myColor || 'white',
         roomCode: waitingCode,
       }));
       window.location.href = `/game?room=${waitingCode}`;
