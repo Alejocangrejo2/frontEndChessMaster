@@ -69,18 +69,38 @@ export const PuzzlesPage: React.FC = () => {
     if (!puzzle) return;
 
     const newEngine = new ChessEngine(puzzle.fen);
-    // Fix orientation: determine which color the PLAYER plays
-    // In Lichess puzzles, the FEN shows the position, and the player
-    // plays as whoever's turn it is in the FEN
+    // In Lichess puzzles, the FEN shows position BEFORE opponent's setup move.
+    // solution[0] = opponent's move (auto-played)
+    // solution[1] = player's first move
+    // So player plays as the OPPOSITE of whoever's turn it is in the FEN.
     const fenTurn = puzzle.fen.split(' ')[1];
-    const fixedColor: Color = fenTurn === 'b' ? 'black' : 'white';
+    const fixedColor: Color = fenTurn === 'w' ? 'black' : 'white';
     setPlayerColor(fixedColor);
     setCurrentPuzzle(puzzle);
-    setEngine(newEngine);
-    setMoveIndex(0);
-    setLastMove(undefined);
     setFeedback(null);
-    setIsProcessing(false);
+    setIsProcessing(true);
+
+    // Auto-play opponent's setup move (solution[0])
+    const setupMove = puzzle.solution[0];
+    if (setupMove) {
+      const sFrom = setupMove.substring(0, 2);
+      const sTo = setupMove.substring(2, 4);
+      const sPromo = setupMove.length === 5
+        ? ({ q: 'queen', r: 'rook', b: 'bishop', n: 'knight' }[setupMove[4]] || undefined) as any
+        : undefined;
+      setTimeout(() => {
+        newEngine.move(sFrom, sTo, sPromo);
+        setEngine(new ChessEngine(newEngine.fen()));
+        setLastMove([sFrom as Key, sTo as Key]);
+        setMoveIndex(1); // Player starts at solution[1]
+        setIsProcessing(false);
+      }, 800);
+    } else {
+      setEngine(newEngine);
+      setMoveIndex(0);
+      setLastMove(undefined);
+      setIsProcessing(false);
+    }
   }, [streak]);
 
   // Load first puzzle when batch is ready
@@ -175,9 +195,24 @@ export const PuzzlesPage: React.FC = () => {
       setStreak(0);
       setTimeout(() => {
         if (currentPuzzle) {
-          setEngine(new ChessEngine(currentPuzzle.fen));
-          setMoveIndex(0);
-          setLastMove(undefined);
+          // Reset: reload FEN and replay setup move
+          const resetEngine = new ChessEngine(currentPuzzle.fen);
+          const setupMove = currentPuzzle.solution[0];
+          if (setupMove) {
+            const sFrom = setupMove.substring(0, 2);
+            const sTo = setupMove.substring(2, 4);
+            const sPromo = setupMove.length === 5
+              ? ({ q: 'queen', r: 'rook', b: 'bishop', n: 'knight' }[setupMove[4]] || undefined) as any
+              : undefined;
+            resetEngine.move(sFrom, sTo, sPromo);
+            setEngine(new ChessEngine(resetEngine.fen()));
+            setLastMove([sFrom as Key, sTo as Key]);
+            setMoveIndex(1);
+          } else {
+            setEngine(resetEngine);
+            setMoveIndex(0);
+            setLastMove(undefined);
+          }
           setFeedback(null);
           setIsProcessing(false);
         }

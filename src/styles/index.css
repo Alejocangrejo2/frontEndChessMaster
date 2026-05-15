@@ -3760,3 +3760,121 @@ button:active, .btn:active {
     font-size: 32px;
   }
 }
+
+/* ============================================
+   LIGHT THEME — Landing Page Overrides
+   ============================================ */
+
+.theme--light .landing {
+  background: linear-gradient(145deg, #f8f9fa 0%, #ffffff 40%, #f0f2f5 100%);
+}
+
+.theme--light .landing__gradient {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(90, 158, 111, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 30%, rgba(90, 158, 111, 0.05) 0%, transparent 50%);
+}
+
+.theme--light .landing__grid {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+}
+
+.theme--light .landing__glow--1 {
+  background: radial-gradient(circle, rgba(90, 158, 111, 0.1) 0%, transparent 70%);
+}
+
+.theme--light .landing__glow--2 {
+  background: radial-gradient(circle, rgba(90, 158, 111, 0.07) 0%, transparent 70%);
+}
+
+.theme--light .landing__piece {
+  color: rgba(60, 60, 60, 0.12) !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+}
+
+.theme--light .landing__title {
+  color: #1a1a1a;
+}
+
+.theme--light .landing__title-chess {
+  color: #1a1a1a;
+}
+
+.theme--light .landing__title-master {
+  color: #538520;
+}
+
+.theme--light .landing__subtitle {
+  color: #666;
+}
+
+.theme--light .landing__feature {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.theme--light .landing__feature:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(90, 158, 111, 0.3);
+}
+
+.theme--light .landing__feature strong {
+  color: #1a1a1a;
+}
+
+.theme--light .landing__feature small {
+  color: #777;
+}
+
+.theme--light .landing__form-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+}
+
+.theme--light .landing__form-title {
+  color: #1a1a1a;
+}
+
+.theme--light .landing__label {
+  color: #888;
+}
+
+.theme--light .landing__input {
+  border: 1px solid #ddd;
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+
+.theme--light .landing__input::placeholder {
+  color: #bbb;
+}
+
+.theme--light .landing__input:focus {
+  border-color: #629924;
+  box-shadow: 0 0 0 3px rgba(98, 153, 36, 0.12);
+}
+
+.theme--light .landing__switch {
+  color: #629924;
+}
+
+.theme--light .landing__back {
+  color: #999;
+}
+
+.theme--light .landing__back:hover {
+  color: #555;
+}
+
+.theme--light .landing__btn--secondary {
+  border-color: #ddd;
+  color: #555;
+}
+
+.theme--light .landing__btn--secondary:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: #bbb;
+}
