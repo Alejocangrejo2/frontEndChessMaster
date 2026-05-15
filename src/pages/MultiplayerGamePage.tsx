@@ -257,6 +257,27 @@ export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCo
     return pairs;
   }, [moves]);
 
+  // Keyboard navigation for move review
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        goBack();
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        goForward();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        goToStart();
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        goToEnd();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [goBack, goForward, goToStart, goToEnd]);
+
   // === WAITING SCREEN ===
   if (!roomState || roomState.status === 'WAITING') {
     return (
