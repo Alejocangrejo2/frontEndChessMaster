@@ -315,8 +315,8 @@ export const AnalysisPage: React.FC = () => {
   // Keyboard navigation
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') { e.preventDefault(); goBack(); }
-      if (e.key === 'ArrowRight') { e.preventDefault(); goForward(); }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); goBack(); }
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); goForward(); }
       if (e.key === 'Home') { e.preventDefault(); goToStart(); }
       if (e.key === 'End') { e.preventDefault(); goToEnd(); }
     };
