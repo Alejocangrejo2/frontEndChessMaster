@@ -35,12 +35,13 @@ export const ChallengeNotification: React.FC<ChallengeNotificationProps> = ({ us
   const [sentChallenge, setSentChallenge] = useState<Challenge | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Poll for incoming challenges every 3 seconds
+  // Poll for incoming AND sent challenges every 3 seconds
   useEffect(() => {
-    if (!username) return;
+    if (!username || !getToken()) return;
 
     const poll = async () => {
       try {
+        // Poll incoming challenges
         const res = await fetch(`${API_URL}/api/challenge/pending`, {
           headers: authHeaders(),
         });
@@ -50,7 +51,32 @@ export const ChallengeNotification: React.FC<ChallengeNotificationProps> = ({ us
             setChallenges(data.filter((c: Challenge) => c.status === 'pending'));
           }
         }
-      } catch { /* silent — backend may not support this yet */ }
+
+        // Poll sent challenges to detect acceptance
+        if (sentChallenge) {
+          const sentRes = await fetch(`${API_URL}/api/challenge/sent`, {
+            headers: authHeaders(),
+          });
+          if (sentRes.ok) {
+            const sentData = await sentRes.json();
+            if (Array.isArray(sentData)) {
+              const accepted = sentData.find(
+                (c: Challenge) => c.id === sentChallenge.id && c.status === 'accepted'
+              );
+              if (accepted) {
+                // Opponent accepted! Navigate to game
+                sessionStorage.setItem('gameConfig', JSON.stringify({
+                  timeControl: { minutes: 10, increment: 0, name: '10+0', label: '10+0', category: 'rapid' },
+                  isVsAI: false,
+                  playerColor: 'white',
+                  roomCode: accepted.roomCode,
+                }));
+                window.location.href = `/game?room=${accepted.roomCode}`;
+              }
+            }
+          }
+        }
+      } catch { /* silent */ }
     };
 
     poll();
@@ -58,7 +84,7 @@ export const ChallengeNotification: React.FC<ChallengeNotificationProps> = ({ us
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
     };
-  }, [username]);
+  }, [username, sentChallenge]);
 
   // Accept challenge
   const acceptChallenge = useCallback(async (challenge: Challenge) => {
