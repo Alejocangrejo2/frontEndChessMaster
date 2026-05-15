@@ -354,39 +354,41 @@ export const AnalysisPage: React.FC = () => {
         </div>
       )}
 
-      {/* Left: Eval Bar + Board */}
+      {/* Left: Eval Bar + Board + Graph */}
       <div className="analysis-page__board-area">
         {analysis && (
           <EvalBar evaluation={currentEval} flipped={orientation === 'black'} />
         )}
 
-        <div className="analysis-page__board">
-          <ChessBoard
-            fen={getDisplayFen()}
-            orientation={orientation}
-            turnColor="white"
-            lastMove={getDisplayLastMove()}
-            check={undefined}
-            dests={new Map()}
-            viewOnly={true}
-            onMove={() => {}}
-          />
+        <div className="analysis-page__board-col">
+          <div className="analysis-page__board">
+            <ChessBoard
+              fen={getDisplayFen()}
+              orientation={orientation}
+              turnColor="white"
+              lastMove={getDisplayLastMove()}
+              check={undefined}
+              dests={new Map()}
+              viewOnly={true}
+              onMove={() => {}}
+            />
+          </div>
+
+          {/* Evaluation Graph — clickable to navigate */}
+          {analysis && (
+            <EvalGraph
+              evals={analysis.moves.map((m, i) => ({
+                moveIndex: i,
+                evalCp: m.evalAfter,
+                classification: m.classification,
+                san: m.san,
+              }))}
+              currentIndex={reviewIndex}
+              onMoveClick={goToMove}
+            />
+          )}
         </div>
       </div>
-
-      {/* Evaluation Graph — clickable to navigate */}
-      {analysis && (
-        <EvalGraph
-          evals={analysis.moves.map((m, i) => ({
-            moveIndex: i,
-            evalCp: m.evalAfter,
-            classification: m.classification,
-            san: m.san,
-          }))}
-          currentIndex={reviewIndex}
-          onMoveClick={goToMove}
-        />
-      )}
 
       {/* Right Panel */}
       <aside className="analysis-page__panel">
