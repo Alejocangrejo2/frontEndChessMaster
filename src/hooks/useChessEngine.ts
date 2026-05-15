@@ -62,6 +62,10 @@ interface UseChessEngineReturn {
   whiteCaptured: Role[];
   blackCaptured: Role[];
   materialBalance: number;
+  // Promotion
+  pendingPromotion: { from: Key; to: Key } | null;
+  completePromotion: (piece: 'queen' | 'rook' | 'bishop' | 'knight') => void;
+  cancelPromotion: () => void;
   // Review system
   reviewIndex: number | null;
   reviewFen: string | null;
@@ -135,6 +139,9 @@ export function useChessEngine(): UseChessEngineReturn {
   const [whiteCaptured, setWhiteCaptured] = useState<Role[]>([]);
   const [blackCaptured, setBlackCaptured] = useState<Role[]>([]);
   const [materialBalanceVal, setMaterialBalance] = useState(0);
+
+  // Promotion dialog state
+  const [pendingPromotion, setPendingPromotion] = useState<{ from: Key; to: Key } | null>(null);
 
   // Game config — initialized from sessionStorage
   const [playerColor, setPlayerColor] = useState<Color>(cfg.playerColor);
@@ -360,12 +367,14 @@ export function useChessEngine(): UseChessEngineReturn {
   const onMove = useCallback((from: Key, to: Key) => {
     const engine = engineRef.current;
 
-    let promotion: 'queen' | undefined;
+    // Check if this move needs promotion
     if (engine.needsPromotion(from, to)) {
-      promotion = 'queen';
+      // Show promotion dialog — do NOT auto-queen
+      setPendingPromotion({ from, to });
+      return;
     }
 
-    const moveInfo = engine.move(from, to, promotion);
+    const moveInfo = engine.move(from, to);
     if (!moveInfo) return;
 
     // Add increment after player move
@@ -378,13 +387,44 @@ export function useChessEngine(): UseChessEngineReturn {
     }
 
     syncState();
-    setReviewIndex(null); // Exit review mode on new move
+    setReviewIndex(null);
 
-    // Trigger AI response
     if (isVsAI && !engine.isGameOver) {
       makeAIMove();
     }
   }, [syncState, isVsAI, makeAIMove, timeControl.increment]);
+
+  // Complete a pending promotion with the chosen piece
+  const completePromotion = useCallback((piece: 'queen' | 'rook' | 'bishop' | 'knight') => {
+    if (!pendingPromotion) return;
+    const engine = engineRef.current;
+    const { from, to } = pendingPromotion;
+    setPendingPromotion(null);
+
+    const moveInfo = engine.move(from, to, piece);
+    if (!moveInfo) return;
+
+    if (timeControl.increment > 0) {
+      if (moveInfo.color === 'white') {
+        setWhiteTime(prev => prev + timeControl.increment * 1000);
+      } else {
+        setBlackTime(prev => prev + timeControl.increment * 1000);
+      }
+    }
+
+    syncState();
+    setReviewIndex(null);
+
+    if (isVsAI && !engine.isGameOver) {
+      makeAIMove();
+    }
+  }, [pendingPromotion, syncState, isVsAI, makeAIMove, timeControl.increment]);
+
+  // Cancel a pending promotion (undo the visual move)
+  const cancelPromotion = useCallback(() => {
+    setPendingPromotion(null);
+    syncState(); // Re-sync to restore board to pre-move state
+  }, [syncState]);
 
   // New game
   const newGame = useCallback((config?: Partial<GameConfig>) => {
@@ -521,6 +561,10 @@ export function useChessEngine(): UseChessEngineReturn {
     whiteCaptured,
     blackCaptured,
     materialBalance: materialBalanceVal,
+    // Promotion
+    pendingPromotion,
+    completePromotion,
+    cancelPromotion,
     // Review system
     reviewIndex,
     reviewFen,

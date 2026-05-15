@@ -3210,3 +3210,64 @@ button:active, .btn:active {
   60%  { transform: translate(15px, -28px) rotate(3deg); }
   80%  { transform: translate(-5px, -12px) rotate(-1deg); }
 }
+
+/* ============================================
+   PROMOTION DIALOG
+   ============================================ */
+
+.promotion-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.promotion-dialog {
+  background: var(--c-bg-box);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+.promotion-dialog__title {
+  color: var(--c-font-dim);
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.promotion-dialog__options {
+  display: flex;
+  gap: 8px;
+}
+
+.promotion-dialog__btn {
+  background: var(--c-bg-hover);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  width: 64px;
+  height: 64px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.promotion-dialog__btn:hover {
+  border-color: var(--c-primary);
+  background: var(--c-bg-zebra2);
+  transform: scale(1.08);
+}
+
+.promotion-dialog__piece {
+  font-size: 40px;
+  line-height: 1;
+}

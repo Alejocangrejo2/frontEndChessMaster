@@ -8,6 +8,7 @@ import { MoveList } from '../components/MoveList';
 import { PlayerBar } from '../components/PlayerBar';
 import { useChessEngine } from '../hooks/useChessEngine';
 import { FloatingPieces } from '../components/FloatingPieces';
+import { PromotionDialog } from '../components/PromotionDialog';
 import type { GameStatus } from '../engine/ChessEngine';
 
 interface GamePageProps {
@@ -319,6 +320,14 @@ export const GamePage: React.FC<GamePageProps> = ({ username }) => {
           </div>
         )}
       </aside>
+
+      {/* Promotion dialog */}
+      {game.pendingPromotion && (
+        <PromotionDialog
+          color={game.turn === 'white' ? 'black' : 'white'}
+          onSelect={game.completePromotion}
+        />
+      )}
     </div>
   );
 };
