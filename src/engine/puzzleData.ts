@@ -155,29 +155,11 @@ export function markPuzzleSeen(id: string): void {
   // Don't add to solvedIds — allow retry after other puzzles
 }
 
-// --- Known puzzle IDs (120 verified from Lichess DB) ---
+// --- Lichess puzzle IDs (from real database) ---
+import { getLichessPuzzles } from './lichessPuzzles';
 
 function getKnownPuzzleIds(): string[] {
-  return [
-    // Beginners (rating ~800-1200)
-    '00sHx','00sJ9','00s0d','010QO','010pH','012V0','014gw','017ND',
-    '01B7s','01IQx','01K4B','01PZB','01UWJ','01WB4','01XaE','01YfA',
-    '01a2V','01bIx','01eKK','01gq9','01hVi','01iO1','01kkM','01lbH',
-    '01n60','01oYA','01rOe','01shR','01ua0','01xIR','020D8','023Ox',
-    '024t6','027KR','02ACR','02Cmt','02E4k','02FzS','02I0T','02KAE',
-    // Intermediate (rating ~1200-1600)
-    '02M9j','02Q5T','02S42','02TjT','02VlQ','02Xrk','02ZfL','02bDa',
-    '02cqK','02e82','02gEO','02iPy','02k3B','02lY4','02nvP','02pLD',
-    '02rGs','02tqC','02vj3','02x7m','030xB','033PV','035q8','038Ky',
-    '03AmG','03D45','03FuM','03ILs','03KnH','03N8c','03PzR','03SQp',
-    '03UrA','03XIM','03Zkj','03c2F','03eSr','03gta','03jK7','03lmQ',
-    // Hard (rating ~1600-2200)
-    '03oDb','03quH','03tLe','03vn2','03yEQ','0419k','043az','046CN',
-    '048dq','04B5G','04Dr8','04GIS','04Ij6','04L0h','04NRx','04QsK',
-    '04TJg','04Vk3','04YBQ','04amn','04dEA','04fgX','04i7t','04kaG',
-    '04n1d','04pS0','04rtN','04uKk','04wm7','04zDU','052eR','054Fn',
-    '057h1','05A8O','05Czl','05FRI','05Hsf','05KK2','05MlP','05PCm',
-  ];
+  return getLichessPuzzles().map(p => p.id);
 }
 
 // --- Fallback puzzles (50 offline puzzles with valid positions) ---
