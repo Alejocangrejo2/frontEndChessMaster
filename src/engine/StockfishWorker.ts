@@ -29,7 +29,7 @@ function getLevelConfig(level: number): {
   limitStrength: boolean;
 } {
   switch (level) {
-    case 1: return { skillLevel: 0,  depth: 1,  moveTime: 100,  elo: 800,  limitStrength: true };
+    case 1: return { skillLevel: 0,  depth: 1,  moveTime: 50,   elo: 600,  limitStrength: true };
     case 2: return { skillLevel: 3,  depth: 3,  moveTime: 200,  elo: 1000, limitStrength: true };
     case 3: return { skillLevel: 5,  depth: 5,  moveTime: 400,  elo: 1200, limitStrength: true };
     case 4: return { skillLevel: 8,  depth: 7,  moveTime: 600,  elo: 1400, limitStrength: true };
