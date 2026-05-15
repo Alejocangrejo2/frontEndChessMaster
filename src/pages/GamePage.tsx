@@ -139,6 +139,27 @@ export const GamePage: React.FC<GamePageProps> = ({ username }) => {
     }
   };
 
+  // Keyboard navigation for move review
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        game.goBack();
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        game.goForward();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        game.goToStart();
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        game.goToEnd();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [game]);
+
   return (
     <div className="game-page" id="game-page">
       <FloatingPieces count={50} />
