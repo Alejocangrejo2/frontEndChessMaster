@@ -52,11 +52,12 @@ export const GamePage: React.FC<GamePageProps> = ({ username }) => {
   const opponentName = game.isVsAI ? `Stockfish nivel ${game.aiLevel}` : 'Oponente';
 
   const isFlipped = game.playerColor === 'black';
+  // Top = opponent side, Bottom = player side (always)
   const topPlayer = isFlipped
-    ? { name: playerName, color: 'white' as const, time: game.whiteTime }
+    ? { name: opponentName, color: 'white' as const, time: game.whiteTime }
     : { name: opponentName, color: 'black' as const, time: game.blackTime };
   const bottomPlayer = isFlipped
-    ? { name: opponentName, color: 'black' as const, time: game.blackTime }
+    ? { name: playerName, color: 'black' as const, time: game.blackTime }
     : { name: playerName, color: 'white' as const, time: game.whiteTime };
 
   // Material advantage
