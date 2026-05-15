@@ -8,7 +8,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChessBoard } from '../components/ChessBoard';
 import { EvalBar } from '../components/EvalBar';
-import { EvalGraph } from '../components/EvalGraph';
 import { AnalysisEngine, CLASSIFICATION_CONFIG } from '../engine/AnalysisEngine';
 import type { GameAnalysis, MoveAnalysis, MoveClassification } from '../engine/AnalysisEngine';
 import { FloatingPieces } from '../components/FloatingPieces';
@@ -354,39 +353,23 @@ export const AnalysisPage: React.FC = () => {
         </div>
       )}
 
-      {/* Left: Eval Bar + Board + Graph */}
+      {/* Left: Eval Bar + Board */}
       <div className="analysis-page__board-area">
         {analysis && (
           <EvalBar evaluation={currentEval} flipped={orientation === 'black'} />
         )}
 
-        <div className="analysis-page__board-col">
-          <div className="analysis-page__board">
-            <ChessBoard
-              fen={getDisplayFen()}
-              orientation={orientation}
-              turnColor="white"
-              lastMove={getDisplayLastMove()}
-              check={undefined}
-              dests={new Map()}
-              viewOnly={true}
-              onMove={() => {}}
-            />
-          </div>
-
-          {/* Evaluation Graph — clickable to navigate */}
-          {analysis && (
-            <EvalGraph
-              evals={analysis.moves.map((m, i) => ({
-                moveIndex: i,
-                evalCp: m.evalAfter,
-                classification: m.classification,
-                san: m.san,
-              }))}
-              currentIndex={reviewIndex}
-              onMoveClick={goToMove}
-            />
-          )}
+        <div className="analysis-page__board">
+          <ChessBoard
+            fen={getDisplayFen()}
+            orientation={orientation}
+            turnColor="white"
+            lastMove={getDisplayLastMove()}
+            check={undefined}
+            dests={new Map()}
+            viewOnly={true}
+            onMove={() => {}}
+          />
         </div>
       </div>
 
