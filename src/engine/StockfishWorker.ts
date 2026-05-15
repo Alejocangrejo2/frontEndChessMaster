@@ -13,14 +13,14 @@ export interface StockfishConfig {
 }
 
 // Mapeo de nivel a configuracion UCI de Stockfish
-// Nivel 1: muy debil (principiante), Nivel 8: maxima fuerza
+// Nivel 1: principiante, Nivel 8: fuerza maxima (GM)
 //
 // Stockfish tiene 2 mecanismos para debilitarse:
-//   1. Skill Level (0-20): agrega errores aleatorios
-//   2. UCI_LimitStrength + UCI_Elo: limita el ELO directamente
+//   1. Skill Level (0-20): agrega errores aleatorios. 0 = maximo error, 20 = perfecto
+//   2. UCI_LimitStrength + UCI_Elo: limita directamente la fuerza
 //
-// Para niveles bajos (1-5): usamos ambos
-// Para niveles altos (6-8): solo Skill Level, sin limite de ELO
+// Para niveles 1-5: usamos ambos mecanismos (ELO cap + Skill Level bajo)
+// Para niveles 6-8: solo Skill Level alto, SIN limite de ELO → juega fuerte
 function getLevelConfig(level: number): {
   skillLevel: number;
   depth: number;
@@ -30,13 +30,13 @@ function getLevelConfig(level: number): {
 } {
   switch (level) {
     case 1: return { skillLevel: 0,  depth: 1,  moveTime: 100,  elo: 800,  limitStrength: true };
-    case 2: return { skillLevel: 3,  depth: 3,  moveTime: 200,  elo: 1000, limitStrength: true };
-    case 3: return { skillLevel: 5,  depth: 5,  moveTime: 400,  elo: 1200, limitStrength: true };
-    case 4: return { skillLevel: 8,  depth: 6,  moveTime: 600,  elo: 1400, limitStrength: true };
-    case 5: return { skillLevel: 11, depth: 8,  moveTime: 800,  elo: 1600, limitStrength: true };
-    case 6: return { skillLevel: 15, depth: 12, moveTime: 1500, elo: 2000, limitStrength: true };
-    case 7: return { skillLevel: 18, depth: 15, moveTime: 2000, elo: 2500, limitStrength: false };
-    case 8: return { skillLevel: 20, depth: 18, moveTime: 3000, elo: 3000, limitStrength: false };
+    case 2: return { skillLevel: 3,  depth: 3,  moveTime: 300,  elo: 1000, limitStrength: true };
+    case 3: return { skillLevel: 5,  depth: 5,  moveTime: 500,  elo: 1200, limitStrength: true };
+    case 4: return { skillLevel: 8,  depth: 8,  moveTime: 700,  elo: 1400, limitStrength: true };
+    case 5: return { skillLevel: 12, depth: 10, moveTime: 1000, elo: 1700, limitStrength: true };
+    case 6: return { skillLevel: 16, depth: 14, moveTime: 1500, elo: 0,    limitStrength: false };
+    case 7: return { skillLevel: 18, depth: 18, moveTime: 2000, elo: 0,    limitStrength: false };
+    case 8: return { skillLevel: 20, depth: 20, moveTime: 3000, elo: 0,    limitStrength: false };
     default: return { skillLevel: 0,  depth: 1,  moveTime: 100,  elo: 800,  limitStrength: true };
   }
 }
@@ -70,7 +70,6 @@ export class StockfishEngine {
         console.warn('Stockfish worker error:', err);
         this.isReady = false;
         this.searching = false;
-        // Resolve pending with empty to trigger fallback
         if (this.pendingCallback) {
           this.pendingCallback = null;
         }
@@ -87,7 +86,10 @@ export class StockfishEngine {
   private handleMessage(line: string): void {
     if (line === 'uciok') {
       this.initialized = true;
-      // Set initial level config
+      // Set hash and threads for better performance
+      this.send('setoption name Hash value 32');
+      this.send('setoption name Threads value 1');
+      // Apply initial level config
       this.applyLevel(this.level);
       this.send('isready');
     } else if (line === 'readyok') {
@@ -130,7 +132,7 @@ export class StockfishEngine {
       this.send('setoption name UCI_LimitStrength value true');
       this.send(`setoption name UCI_Elo value ${config.elo}`);
     } else {
-      // Full strength — no ELO limit
+      // Full strength — no ELO limit, Skill Level controls quality
       this.send('setoption name UCI_LimitStrength value false');
     }
   }
@@ -167,11 +169,7 @@ export class StockfishEngine {
    * Get the best move for the given FEN position.
    * Returns a UCI move string like "e2e4" or "e7e8q" (promotion).
    *
-   * FIX: Now properly handles engine state between searches:
-   * 1. Stops any in-progress search first
-   * 2. Waits for readyok before starting new search
-   * 3. Uses movetime as PRIMARY limit (more reliable than depth alone)
-   * 4. Hard timeout at 5s forces stop+fallback
+   * Flow: stop → isready → ucinewgame → applyLevel → position → go depth+movetime
    */
   getBestMove(fen: string): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -194,7 +192,6 @@ export class StockfishEngine {
         attempts++;
         if (!this.isReady) {
           if (attempts > maxAttempts) {
-            // Engine not responding to isready — force restart
             console.warn('Stockfish not responding to isready, forcing restart');
             this.restartWorker();
             reject(new Error('Stockfish not ready'));
@@ -206,14 +203,17 @@ export class StockfishEngine {
 
         const config = getLevelConfig(this.level);
 
+        // Re-apply level config before EVERY search to ensure it sticks
+        this.applyLevel(this.level);
+
         this.pendingCallback = (bestMove: string) => {
           resolve(bestMove);
         };
 
         this.searching = true;
 
-        // Set position and search
-        // Use movetime + depth for proper strength scaling
+        // Set position and search with both depth and movetime
+        this.send('ucinewgame');
         this.send(`position fen ${fen}`);
         this.send(`go depth ${config.depth} movetime ${config.moveTime}`);
 

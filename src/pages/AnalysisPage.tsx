@@ -10,6 +10,7 @@ import { ChessBoard } from '../components/ChessBoard';
 import { EvalBar } from '../components/EvalBar';
 import { AnalysisEngine, CLASSIFICATION_CONFIG } from '../engine/AnalysisEngine';
 import type { GameAnalysis, MoveAnalysis, MoveClassification } from '../engine/AnalysisEngine';
+import { FloatingPieces } from '../components/FloatingPieces';
 import type { Key } from 'chessground/types';
 
 export const AnalysisPage: React.FC = () => {
@@ -220,6 +221,7 @@ export const AnalysisPage: React.FC = () => {
   if (!gameData) {
     return (
       <div className="analysis-page analysis-page--empty">
+        <FloatingPieces count={30} />
         <h2>No hay partida para analizar</h2>
         <button className="btn-primary" onClick={() => navigate('/')}>Ir al lobby</button>
       </div>
@@ -228,6 +230,7 @@ export const AnalysisPage: React.FC = () => {
 
   return (
     <div className="analysis-page" id="analysis-page">
+      <FloatingPieces count={30} />
       {/* Loading overlay */}
       {isAnalyzing && (
         <div className="analysis-loading">

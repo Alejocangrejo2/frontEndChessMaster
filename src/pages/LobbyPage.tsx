@@ -7,6 +7,7 @@ import React, { useState, useCallback } from 'react';
 import { TIME_CONTROLS, type TimeControl, type AIDifficulty } from '../hooks/useChessEngine';
 import { useMultiplayerGame } from '../hooks/useMultiplayerGame';
 import { FriendsPanel } from '../components/FriendsPanel';
+import { FloatingPieces } from '../components/FloatingPieces';
 import type { Color } from 'chessground/types';
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -137,6 +138,7 @@ export const LobbyPage: React.FC = () => {
 
   return (
     <div className="lobby-page" id="lobby-page">
+      <FloatingPieces count={50} />
       {/* Main content -- time control grid */}
       <div className="lobby-page__main" id="lobby-main">
         <div className="lobby-section-title">Emparejamiento rapido</div>

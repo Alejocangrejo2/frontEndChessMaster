@@ -6,6 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { getGameHistory, type GameHistoryItem } from '../services/api';
+import { FloatingPieces } from '../components/FloatingPieces';
 
 interface GameRecord {
   id: string;
@@ -80,6 +81,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ username }) => {
   if (!username) {
     return (
       <div className="history-page" id="history-page">
+        <FloatingPieces count={30} />
         <div className="history-empty">
           <h2>Historial de Partidas</h2>
           <p>Inicia sesion para ver tu historial de partidas.</p>
@@ -90,6 +92,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ username }) => {
 
   return (
     <div className="history-page" id="history-page">
+      <FloatingPieces count={30} />
       <div className="history-header">
         <h1 className="history-title">Historial de Partidas</h1>
         {source === 'local' && (

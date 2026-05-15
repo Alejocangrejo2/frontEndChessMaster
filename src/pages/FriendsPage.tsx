@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { FriendsPanel } from '../components/FriendsPanel';
+import { FloatingPieces } from '../components/FloatingPieces';
 
 interface FriendsPageProps {
   username: string | null;
@@ -12,6 +13,7 @@ interface FriendsPageProps {
 export const FriendsPage: React.FC<FriendsPageProps> = ({ username }) => {
   return (
     <div className="friends-page" id="friends-page">
+      <FloatingPieces count={30} />
       <div className="friends-page__header">
         <h1 className="friends-page__title">Amigos</h1>
         <p className="friends-page__subtitle">

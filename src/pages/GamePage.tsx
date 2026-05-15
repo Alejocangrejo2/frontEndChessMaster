@@ -7,6 +7,7 @@ import { ChessBoard } from '../components/ChessBoard';
 import { MoveList } from '../components/MoveList';
 import { PlayerBar } from '../components/PlayerBar';
 import { useChessEngine } from '../hooks/useChessEngine';
+import { FloatingPieces } from '../components/FloatingPieces';
 import type { GameStatus } from '../engine/ChessEngine';
 
 interface GamePageProps {
@@ -138,6 +139,7 @@ export const GamePage: React.FC<GamePageProps> = ({ username }) => {
 
   return (
     <div className="game-page" id="game-page">
+      <FloatingPieces count={30} />
       {/* Left Panel */}
       <aside className="game-page__info" id="game-info-panel">
         <div className="game-info">

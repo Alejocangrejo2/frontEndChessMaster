@@ -9,6 +9,7 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { ChessBoard } from '../components/ChessBoard';
 import { PlayerBar } from '../components/PlayerBar';
 import { ChessEngine } from '../engine/ChessEngine';
+import { FloatingPieces } from '../components/FloatingPieces';
 import type { Key, Color } from 'chessground/types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
@@ -255,6 +256,7 @@ export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCo
 
   return (
     <div className="game-page" id="game-page">
+      <FloatingPieces count={30} />
       {/* Left Panel */}
       <aside className="game-page__info" id="game-info-panel">
         <div className="game-info">
