@@ -2559,10 +2559,12 @@ button:active, .btn:active {
 .lobby-join-code__row {
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 
 .lobby-join-code__input {
   flex: 1;
+  min-width: 0;
   padding: 10px 14px;
   border: 1px solid var(--c-border);
   border-radius: 8px;
@@ -2590,7 +2592,8 @@ button:active, .btn:active {
 }
 
 .lobby-join-code__btn {
-  padding: 10px 20px;
+  flex-shrink: 0;
+  padding: 10px 24px;
   border: none;
   border-radius: 8px;
   background: var(--c-primary);
