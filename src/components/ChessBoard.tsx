@@ -114,7 +114,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
   }, [fen, orientation, turnColor, lastMove, check, dests, viewOnly, effectiveColor]);
 
   return (
-    <div className="board-container">
+    <div className="board-container" onContextMenu={e => e.preventDefault()}>
       <div
         ref={boardRef}
         className="cg-wrap"
