@@ -254,6 +254,53 @@ export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCo
     return pairs;
   }, [moves]);
 
+  // === WAITING SCREEN ===
+  if (!roomState || roomState.status === 'WAITING') {
+    return (
+      <div className="game-page" id="game-page">
+        <FloatingPieces count={50} />
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          minHeight: '70vh', gap: '24px', textAlign: 'center', padding: '24px',
+        }}>
+          <div style={{
+            fontSize: '56px', animation: 'pulse 2s ease-in-out infinite',
+          }}>♟</div>
+          <h2 style={{ color: 'var(--c-font-clear)', fontSize: '24px', margin: 0 }}>
+            Esperando oponente...
+          </h2>
+          <p style={{ color: 'var(--c-font-dim)', fontSize: '14px', margin: 0 }}>
+            Comparte este codigo con tu amigo
+          </p>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '12px',
+            background: 'var(--c-bg-input)', border: '1px solid var(--c-border)',
+            borderRadius: '12px', padding: '12px 20px',
+          }}>
+            <span style={{
+              fontFamily: 'monospace', fontSize: '28px', fontWeight: 700,
+              letterSpacing: '4px', color: 'var(--c-primary)',
+            }}>{roomCode}</span>
+            <button
+              onClick={() => { navigator.clipboard.writeText(roomCode); }}
+              style={{
+                background: 'var(--c-primary)', color: '#fff', border: 'none',
+                borderRadius: '8px', padding: '8px 14px', cursor: 'pointer',
+                fontSize: '13px', fontWeight: 600,
+              }}
+            >Copiar</button>
+          </div>
+          <div style={{
+            width: '40px', height: '40px', border: '3px solid var(--c-border)',
+            borderTopColor: 'var(--c-primary)', borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+          }} />
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="game-page" id="game-page">
       <FloatingPieces count={50} />
