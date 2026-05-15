@@ -186,7 +186,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
       <div className="landing" id="landing-page">
         {renderBackground()}
         <button className="landing__theme-toggle" onClick={toggleTheme} title={isDark ? 'Modo claro' : 'Modo oscuro'}>
-          {isDark ? '♙' : '♟'}
+          {isDark ? '\u2659\uFE0F' : '\u265F\uFE0F'}
         </button>
         <div className="landing__content">
           <div className="landing__hero">
@@ -274,7 +274,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
     <div className="landing" id="landing-page">
       {renderBackground()}
       <button className="landing__theme-toggle" onClick={toggleTheme} title={isDark ? 'Modo claro' : 'Modo oscuro'}>
-        {isDark ? '♙' : '♟'}
+        {isDark ? '\u2659\uFE0F' : '\u265F\uFE0F'}
       </button>
       <div className="landing__content">
         <div className="landing__form-card">
