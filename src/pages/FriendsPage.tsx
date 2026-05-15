@@ -13,7 +13,7 @@ interface FriendsPageProps {
 export const FriendsPage: React.FC<FriendsPageProps> = ({ username }) => {
   return (
     <div className="friends-page" id="friends-page">
-      <FloatingPieces count={30} />
+      <FloatingPieces count={50} />
       <div className="friends-page__header">
         <h1 className="friends-page__title">Amigos</h1>
         <p className="friends-page__subtitle">

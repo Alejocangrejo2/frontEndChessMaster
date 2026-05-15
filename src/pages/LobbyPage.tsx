@@ -8,6 +8,7 @@ import { TIME_CONTROLS, type TimeControl, type AIDifficulty } from '../hooks/use
 import { useMultiplayerGame } from '../hooks/useMultiplayerGame';
 import { FriendsPanel } from '../components/FriendsPanel';
 import { FloatingPieces } from '../components/FloatingPieces';
+import { ChallengeNotification, sendChallengeEvent } from '../components/ChallengeNotification';
 import type { Color } from 'chessground/types';
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -169,7 +170,7 @@ export const LobbyPage: React.FC = () => {
 
   return (
     <div className="lobby-page" id="lobby-page">
-      <FloatingPieces count={50} />
+      <FloatingPieces count={70} />
       {/* Main content -- time control grid */}
       <div className="lobby-page__main" id="lobby-main">
         <div className="lobby-section-title">Emparejamiento rapido</div>
@@ -338,6 +339,8 @@ export const LobbyPage: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Challenge notification overlay */}
+      <ChallengeNotification username={localStorage.getItem('chess_username')} />
     </div>
   );
 };

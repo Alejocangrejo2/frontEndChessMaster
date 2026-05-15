@@ -221,7 +221,7 @@ export const AnalysisPage: React.FC = () => {
   if (!gameData) {
     return (
       <div className="analysis-page analysis-page--empty">
-        <FloatingPieces count={30} />
+        <FloatingPieces count={50} />
         <h2>No hay partida para analizar</h2>
         <button className="btn-primary" onClick={() => navigate('/')}>Ir al lobby</button>
       </div>
@@ -230,7 +230,7 @@ export const AnalysisPage: React.FC = () => {
 
   return (
     <div className="analysis-page" id="analysis-page">
-      <FloatingPieces count={30} />
+      <FloatingPieces count={50} />
       {/* Loading overlay */}
       {isAnalyzing && (
         <div className="analysis-loading">

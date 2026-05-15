@@ -231,7 +231,7 @@ export const PuzzlesPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="puzzles-page fade-in" id="puzzles-page">
-        <FloatingPieces count={30} />
+        <FloatingPieces count={50} />
         <div className="puzzles-loading">
           <div className="puzzles-loading__spinner"></div>
           <p className="puzzles-loading__text">Cargando puzzles de Lichess...</p>
@@ -242,7 +242,7 @@ export const PuzzlesPage: React.FC = () => {
 
   return (
     <div className="puzzles-page fade-in" id="puzzles-page">
-      <FloatingPieces count={30} />
+      <FloatingPieces count={50} />
       {/* Stats bar */}
       <div className="puzzles-stats">
         <div className="puzzles-stats__item">

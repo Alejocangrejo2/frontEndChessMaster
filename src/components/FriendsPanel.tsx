@@ -6,6 +6,7 @@
 // Se integra en el Lobby y como página independiente.
 
 import React, { useState, useCallback, useEffect } from 'react';
+import { sendChallengeEvent } from './ChallengeNotification';
 
 // === Types ===
 export interface Friend {
@@ -225,15 +226,9 @@ export const FriendsPanel: React.FC<FriendsPanelProps> = ({
     if (onChallenge) {
       onChallenge(friendUsername);
     } else {
-      // Generate a game code and redirect
-      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-      sessionStorage.setItem('gameConfig', JSON.stringify({
-        timeControl: { minutes: 10, increment: 0, name: '10+0', label: '10+0', category: 'rapid' },
-        isVsAI: false,
-        privateCode: code,
-        challengedUser: friendUsername,
-      }));
-      setNotification(`Código de partida: ${code} — Comparte con ${friendUsername}`);
+      // Send challenge via notification system
+      sendChallengeEvent(friendUsername);
+      setNotification(`Reto enviado a ${friendUsername}`);
     }
   };
 

@@ -256,7 +256,7 @@ export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCo
 
   return (
     <div className="game-page" id="game-page">
-      <FloatingPieces count={30} />
+      <FloatingPieces count={50} />
       {/* Left Panel */}
       <aside className="game-page__info" id="game-info-panel">
         <div className="game-info">
