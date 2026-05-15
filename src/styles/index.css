@@ -2567,6 +2567,8 @@ button:active, .btn:active {
 .puzzles-board-wrap .cg-wrap {
   width: 100% !important;
   height: 100% !important;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .puzzles-info__hint {
