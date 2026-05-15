@@ -3435,3 +3435,48 @@ button:active, .btn:active {
   font-weight: 600;
   margin: 4px 0 8px;
 }
+
+/* Search tab — card-style input */
+.friend-item--search {
+  background: var(--c-bg-hover);
+  border: 1px dashed var(--c-border);
+}
+
+.friend-item__dot--search {
+  background: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-font-dim);
+}
+
+.friend-item__search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--c-font);
+  font-size: 13px;
+  padding: 2px 4px;
+  min-width: 0;
+}
+
+.friend-item__search-input::placeholder {
+  color: var(--c-font-dimmer);
+}
+
+.friend-item__action--search {
+  background: var(--c-primary) !important;
+  color: #fff !important;
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.friend-item__action--search:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

@@ -375,52 +375,76 @@ export const FriendsPanel: React.FC<FriendsPanelProps> = ({
 
       {/* SEARCH TAB */}
       {activeTab === 'search' && (
-        <div className="friends-search" id="friends-search">
-          <div className="friends-search__input-wrap">
-            <input
-              className="friends-search__input"
-              type="text"
-              placeholder="Buscar por nombre..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSearch()}
-              id="search-username-input"
-            />
+        <div className="friends-list" id="friends-search">
+          {/* Search input styled like a friend item */}
+          <div className="friend-item friend-item--search">
+            <div className="friend-item__main" style={{ width: '100%' }}>
+              <span className="friend-item__dot friend-item__dot--search">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
+                  <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+              </span>
+              <input
+                className="friend-item__search-input"
+                type="text"
+                placeholder="Nombre de usuario..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                id="search-username-input"
+              />
+            </div>
             <button
-              className="friends-search__btn"
+              className="friend-item__action friend-item__action--search"
               onClick={handleSearch}
               disabled={isSearching || searchQuery.length < 2}
+              title="Buscar"
             >
-              {isSearching ? '...' : 'Buscar'}
+              {isSearching ? '...' : 'Ir'}
             </button>
           </div>
 
-          <div className="friends-search__results">
-            {searchResults.map(user => {
-              const isFriend = friends.some(f => f.username === user.username);
-              const isSelf = user.username === username;
-              return (
-                <div key={user.username} className="friends-search__result">
-                  <div className="friends-search__result-info">
-                    <span className="friends-search__result-name">{user.username}</span>
-                    <span className="friends-search__result-rating">{user.rating}</span>
+          {/* Results as friend-item cards */}
+          {searchResults.length > 0 && (
+            <div className="friends-group">
+              <div className="friends-group__header">
+                Resultados ({searchResults.length})
+              </div>
+              {searchResults.map(user => {
+                const isFriend = friends.some(f => f.username === user.username);
+                const isSelf = user.username === username;
+                return (
+                  <div key={user.username} className="friend-item">
+                    <div className="friend-item__main">
+                      <span className="friend-item__dot friend-item__dot--offline" />
+                      <span className="friend-item__name">{user.username}</span>
+                      <span className="friend-item__rating">{user.rating}</span>
+                    </div>
+                    {isSelf ? (
+                      <span className="friend-item__last-seen">Tú</span>
+                    ) : isFriend ? (
+                      <span className="friend-item__last-seen">Amigo</span>
+                    ) : (
+                      <button
+                        className="friend-item__action friend-item__action--challenge"
+                        onClick={() => sendRequest(user.username)}
+                        title="Agregar amigo"
+                        style={{ display: 'flex' }}
+                      >
+                        +
+                      </button>
+                    )}
                   </div>
-                  {isSelf ? (
-                    <span className="friends-search__result-tag">Tú</span>
-                  ) : isFriend ? (
-                    <span className="friends-search__result-tag">Amigo</span>
-                  ) : (
-                    <button
-                      className="friends-search__result-add"
-                      onClick={() => sendRequest(user.username)}
-                    >
-                      + Agregar
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
+
+          {searchResults.length === 0 && searchQuery.length > 0 && !isSearching && (
+            <div className="friends-panel__empty">
+              <p>Escribe un nombre y presiona Ir</p>
+            </div>
+          )}
         </div>
       )}
     </div>
