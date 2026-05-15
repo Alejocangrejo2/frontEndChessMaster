@@ -89,20 +89,24 @@ export const ChallengeNotification: React.FC<ChallengeNotificationProps> = ({ us
   // Accept challenge
   const acceptChallenge = useCallback(async (challenge: Challenge) => {
     try {
-      await fetch(`${API_URL}/api/challenge/${challenge.id}/accept`, {
+      const res = await fetch(`${API_URL}/api/challenge/${challenge.id}/accept`, {
         method: 'POST',
         headers: authHeaders(),
       });
+      if (res.ok) {
+        const accepted = await res.json();
+        const roomCode = accepted.roomCode;
+        if (roomCode) {
+          sessionStorage.setItem('gameConfig', JSON.stringify({
+            timeControl: { minutes: 10, increment: 0, name: '10+0', label: '10+0', category: 'rapid' },
+            isVsAI: false,
+            playerColor: 'black',
+            roomCode,
+          }));
+          window.location.href = `/game?room=${roomCode}`;
+        }
+      }
     } catch { /* silent */ }
-
-    // Navigate to game
-    sessionStorage.setItem('gameConfig', JSON.stringify({
-      timeControl: { minutes: 10, increment: 0, name: '10+0', label: '10+0', category: 'rapid' },
-      isVsAI: false,
-      playerColor: 'black',
-      roomCode: challenge.roomCode,
-    }));
-    window.location.href = `/game?room=${challenge.roomCode}`;
   }, []);
 
   // Reject challenge
