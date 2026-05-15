@@ -70,6 +70,9 @@ const App: React.FC = () => {
   const handleLogin = useCallback((name: string) => {
     localStorage.setItem('chess_username', name);
     sessionStorage.setItem('chess_session_active', 'true');
+    // Sync theme from landing page toggle
+    const savedTheme = localStorage.getItem('chess_theme') as 'dark' | 'light' | null;
+    if (savedTheme) setTheme(savedTheme);
     setUsername(name);
   }, []);
 
