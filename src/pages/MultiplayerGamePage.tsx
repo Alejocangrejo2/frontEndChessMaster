@@ -51,12 +51,15 @@ interface MultiplayerGamePageProps {
   myColor: Color;
 }
 
-export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCode, username, myColor }) => {
+export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCode, username, myColor: initialColor }) => {
   const [roomState, setRoomState] = useState<RoomState | null>(null);
   const [statusMessage, setStatusMessage] = useState('Conectando...');
   const [isGameOver, setIsGameOver] = useState(false);
   const [showResignConfirm, setShowResignConfirm] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Use backend myColor as source of truth, fallback to prop
+  const myColor: Color = roomState?.myColor || initialColor;
 
   // Review state
   const [reviewIndex, setReviewIndex] = useState<number | null>(null);
