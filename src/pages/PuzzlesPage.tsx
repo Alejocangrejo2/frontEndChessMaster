@@ -94,7 +94,7 @@ export const PuzzlesPage: React.FC = () => {
         setLastMove([sFrom as Key, sTo as Key]);
         setMoveIndex(1); // Player starts at solution[1]
         setIsProcessing(false);
-      }, 800);
+      }, 400);
     } else {
       setEngine(newEngine);
       setMoveIndex(0);
@@ -167,7 +167,7 @@ export const PuzzlesPage: React.FC = () => {
         }
         // Trigger re-render
         setEngine(prev => prev ? new ChessEngine(prev.fen()) : null);
-        setTimeout(() => loadNewPuzzle(), 2000);
+        setTimeout(() => loadNewPuzzle(), 1500);
       } else {
         setFeedback('correct');
 
@@ -187,7 +187,7 @@ export const PuzzlesPage: React.FC = () => {
             setIsProcessing(false);
             setEngine(new ChessEngine(engine.fen()));
           }
-        }, 600);
+        }, 400);
       }
     } else {
       // Wrong move
@@ -216,7 +216,7 @@ export const PuzzlesPage: React.FC = () => {
           setFeedback(null);
           setIsProcessing(false);
         }
-      }, 1500);
+      }, 1000);
     }
   }, [currentPuzzle, engine, moveIndex, streak, bestStreak, isProcessing, loadNewPuzzle]);
 
