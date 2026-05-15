@@ -1552,6 +1552,74 @@ button:active:not(:disabled) {
 }
 
 /* ============================================
+   EVAL GRAPH
+   ============================================ */
+.eval-graph {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  background: var(--c-surface, #1a1a2e);
+  border-radius: 8px;
+  border: 1px solid var(--c-border, #333);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.eval-graph__svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.eval-graph__labels {
+  position: absolute;
+  right: 4px;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+  padding: 4px 0;
+}
+
+.eval-graph__label {
+  font-size: 9px;
+  font-weight: 600;
+  opacity: 0.5;
+  font-family: 'Inter', monospace;
+}
+
+.eval-graph__label--white {
+  color: #f0f0f0;
+}
+
+.eval-graph__label--zero {
+  color: #888;
+}
+
+.eval-graph__label--black {
+  color: #999;
+}
+
+.eval-graph__tooltip {
+  position: absolute;
+  bottom: 4px;
+  left: 8px;
+  font-size: 11px;
+  color: var(--c-text, #eee);
+  background: rgba(0, 0, 0, 0.6);
+  padding: 2px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+  font-family: 'Inter', monospace;
+}
+
+.eval-graph__tooltip strong {
+  color: var(--c-primary, #4ecdc4);
+}
+
+/* ============================================
    ANALYSIS PAGE
    ============================================ */
 .analysis-page {
