@@ -2804,6 +2804,41 @@ button:active, .btn:active {
   background: linear-gradient(145deg, #0d0f12 0%, #121416 40%, #10131a 100%);
 }
 
+.landing__theme-toggle {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.landing__theme-toggle:hover {
+  background: rgba(255,255,255,0.12);
+  transform: scale(1.08);
+}
+
+.theme--light .landing__theme-toggle {
+  border-color: rgba(0,0,0,0.12);
+  background: rgba(0,0,0,0.04);
+  color: #333;
+}
+
+.theme--light .landing__theme-toggle:hover {
+  background: rgba(0,0,0,0.08);
+}
+
 .landing__bg {
   position: absolute;
   inset: -30px;

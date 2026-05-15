@@ -73,6 +73,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const bgRef = useRef<HTMLDivElement>(null);
+  const [isDark, setIsDark] = useState(() => {
+    return (localStorage.getItem('chess_theme') || 'light') === 'dark';
+  });
+
+  const toggleTheme = () => {
+    const next = isDark ? 'light' : 'dark';
+    setIsDark(!isDark);
+    localStorage.setItem('chess_theme', next);
+    const root = document.getElementById('app-root');
+    if (root) {
+      root.className = root.className.replace(/theme--\w+/, `theme--${next}`);
+    }
+  };
 
   const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
@@ -172,6 +185,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
     return (
       <div className="landing" id="landing-page">
         {renderBackground()}
+        <button className="landing__theme-toggle" onClick={toggleTheme} title={isDark ? 'Modo claro' : 'Modo oscuro'}>
+          {isDark ? '☀️' : '🌙'}
+        </button>
         <div className="landing__content">
           <div className="landing__hero">
             <div className="landing__icon landing__icon--animated">
@@ -257,6 +273,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
   return (
     <div className="landing" id="landing-page">
       {renderBackground()}
+      <button className="landing__theme-toggle" onClick={toggleTheme} title={isDark ? 'Modo claro' : 'Modo oscuro'}>
+        {isDark ? '☀️' : '🌙'}
+      </button>
       <div className="landing__content">
         <div className="landing__form-card">
           <h2 className="landing__form-title">
