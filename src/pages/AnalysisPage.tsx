@@ -52,11 +52,107 @@ export const AnalysisPage: React.FC = () => {
     }
   }, [navigate]);
 
-  // Try backend analysis first, fall back to local WASM
+  // Try Lichess cloud eval first, then backend, then local WASM
   useEffect(() => {
     if (!gameData || analysis) return;
     setIsAnalyzing(true);
 
+    // --- Priority 1: Lichess Cloud Eval ---
+    const tryLichessCloudEval = async (): Promise<GameAnalysis | null> => {
+      try {
+        const { fetchCloudEval, cloudEvalToScore } = await import('../engine/LichessCloudEval');
+        const positions = gameData.positions;
+        const moves = gameData.moves;
+        const evals: number[] = [];
+
+        // Fetch eval for each position
+        for (let i = 0; i < positions.length; i++) {
+          setProgress(Math.round((i / positions.length) * 80));
+          setCurrentAnalyzingMove(i);
+
+          const result = await fetchCloudEval(positions[i]);
+          if (!result) {
+            // Position not in cloud DB — abort cloud eval, use fallback
+            return null;
+          }
+          evals.push(cloudEvalToScore(result));
+
+          // Rate limit: 200ms between requests
+          if (i < positions.length - 1) {
+            await new Promise(r => setTimeout(r, 200));
+          }
+        }
+
+        // Build analysis from cloud evals
+        const moveAnalyses: MoveAnalysis[] = moves.map((m, i) => {
+          const evalBefore = evals[i] ?? 0;
+          const evalAfter = evals[i + 1] ?? evalBefore;
+          const isWhite = m.color === 'white';
+          const cpLoss = isWhite
+            ? Math.max(0, evalBefore - evalAfter)
+            : Math.max(0, evalAfter - evalBefore);
+
+          // Classify move based on centipawn loss
+          let classification: MoveClassification = 'best';
+          if (cpLoss > 3) classification = 'blunder';
+          else if (cpLoss > 1.5) classification = 'mistake';
+          else if (cpLoss > 0.5) classification = 'inaccuracy';
+          else if (cpLoss > 0.2) classification = 'good';
+          else if (cpLoss > 0.05) classification = 'best';
+          else classification = 'brilliant';
+
+          return {
+            moveIndex: i,
+            san: m.san,
+            from: m.from,
+            to: m.to,
+            color: m.color,
+            evalBefore: evalBefore * 100, // Convert to centipawns
+            evalAfter: evalAfter * 100,
+            bestMove: '',
+            bestMoveSan: '',
+            classification,
+            cpLoss: cpLoss * 100,
+          };
+        });
+
+        // Calculate accuracy
+        const calcAccuracy = (ms: MoveAnalysis[]) => {
+          if (ms.length === 0) return 100;
+          const avgLoss = ms.reduce((s, m) => s + m.cpLoss, 0) / ms.length;
+          return Math.max(0, Math.min(100, 100 - avgLoss / 2));
+        };
+
+        const wm = moveAnalyses.filter(m => m.color === 'white');
+        const bm = moveAnalyses.filter(m => m.color === 'black');
+        const countCls = (arr: MoveAnalysis[], cls: string) =>
+          arr.filter(m => m.classification === cls).length;
+
+        return {
+          moves: moveAnalyses,
+          whiteAccuracy: Math.round(calcAccuracy(wm) * 10) / 10,
+          blackAccuracy: Math.round(calcAccuracy(bm) * 10) / 10,
+          whiteBrilliant: countCls(wm, 'brilliant'),
+          whiteGreat: countCls(wm, 'great'),
+          whiteBest: countCls(wm, 'best'),
+          whiteGood: countCls(wm, 'good'),
+          whiteInaccuracy: countCls(wm, 'inaccuracy'),
+          whiteMistake: countCls(wm, 'mistake'),
+          whiteBlunder: countCls(wm, 'blunder'),
+          blackBrilliant: countCls(bm, 'brilliant'),
+          blackGreat: countCls(bm, 'great'),
+          blackBest: countCls(bm, 'best'),
+          blackGood: countCls(bm, 'good'),
+          blackInaccuracy: countCls(bm, 'inaccuracy'),
+          blackMistake: countCls(bm, 'mistake'),
+          blackBlunder: countCls(bm, 'blunder'),
+        };
+      } catch {
+        return null;
+      }
+    };
+
+    // --- Priority 2: Backend Stockfish ---
     const tryBackendAnalysis = async (): Promise<GameAnalysis | null> => {
       try {
         const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
@@ -117,7 +213,17 @@ export const AnalysisPage: React.FC = () => {
     };
 
     const runAnalysis = async () => {
-      // Try backend first
+      // Try Lichess cloud eval first (fastest, most accurate)
+      setProgress(5);
+      const cloudResult = await tryLichessCloudEval();
+      if (cloudResult) {
+        setAnalysis(cloudResult);
+        setProgress(100);
+        setIsAnalyzing(false);
+        return;
+      }
+
+      // Try backend Stockfish
       setProgress(10);
       const backendResult = await tryBackendAnalysis();
 
