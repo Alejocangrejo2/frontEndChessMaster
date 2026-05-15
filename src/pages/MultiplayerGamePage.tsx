@@ -113,7 +113,7 @@ export const MultiplayerGamePage: React.FC<MultiplayerGamePageProps> = ({ roomCo
   // Start polling on mount
   useEffect(() => {
     pollState();
-    pollingRef.current = setInterval(pollState, 2000);
+    pollingRef.current = setInterval(pollState, 1000);
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current);
     };
